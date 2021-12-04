@@ -89,6 +89,9 @@ Data
 
 */
 
+const rpcUrl = 'https://nd-475-177-088.p2pify.com/d86115e778aa9c1e71b5403a89b73fa9';
+const wss = 'wss://ws-nd-475-177-088.p2pify.com/d86115e778aa9c1e71b5403a89b73fa9';
+
 const ADMIN_PRI_KEY = process.env.ADMIN_PRI_KEY;
 const FixedPriceSellJson = require('./contracts/FixedPriceSell.json');
 const FixedPriceSellJsonAddress = "0x7B4452dD6c38597fa9364AC8905C27EA44425832";
@@ -139,9 +142,6 @@ const actions = {
 	}
 }
 
-const rpcUrl = 'https://bsc-dataseed.binance.org';
-const wss = 'wss://bsc-ws-node.nariox.org:443';
-
 // const web3 = new Web3(new Web3.providers.HttpProvider(rpcUrl));
 const web3 = new Web3(new Web3.providers.WebsocketProvider(wss));
 console.log("Web3 connected...");
@@ -158,17 +158,35 @@ const connection = mysql.createConnection({
 
 web3.eth.accounts.wallet.add(account)
 
-const subscription_auction = () => {
+const subscription_sell = () => {
 	web3.eth.subscribe('logs', {
-		topics: [sellTopics, buyTopics]
+		topics: [sellTopics]
 	}, function(error, result){
 	})
 	.on("connected", function(subscriptionId){
-		console.log('subscription_auction Id:' + subscriptionId);
+		console.log('subscription_sell Id:' + subscriptionId);
 	})
 	.on("data", async function(log){
-		if(log.topics[0] == sellTopics) await parseSellData(log);
-		else if(log.topics[0] == buyTopics) await parseBuyData(log);
+		await parseSellData(log);
+	})
+	.on("error", function(error) {
+		console.log(error)
+	})
+}
+
+const subscription_buy = () => {
+	web3.eth.subscribe('logs', {
+		topics: [buyTopics]
+	}, function(error, result){
+	})
+	.on("connected", function(subscriptionId){
+		console.log('subscription_buy Id:' + subscriptionId);
+	})
+	.on("data", async function(log){
+		await parseBuyData(log);
+	})
+	.on("error", function(error) {
+		console.log(error)
 	})
 }
 
@@ -217,7 +235,7 @@ const parseSellData = async (d) => {
 	} else {
 		sellData.nftType = 'other';
 	}
-	console.log(`Sell ${sellData.nftType} hash ${sellData.transactionHash}`);
+	console.log(`=> Sell ${sellData.nftType} hash ${sellData.transactionHash}`);
 	await addDB(sellData);
 }
 
@@ -231,7 +249,6 @@ const parseBuyData = async (d) => {
 	buyData.buyerLogId = d.id;
 	buyData.buyerBlockNumber = d.blockNumber;
 	buyData.buyerAction = BUY;
-	console.log(`Buy ${buyData.auctionId} hash ${buyData.buyerTransactionHash}`);
 
 	buyData.buyerAddress = topics[1];
 	buyData.auctionId = topics[2];
@@ -239,14 +256,11 @@ const parseBuyData = async (d) => {
 
 	const params = web3.eth.abi.decodeParameters(['uint256', 'uint256', 'uint256'], data);
 	buyData.tokenId = params[0];
-	buyData.buyerAmount = params[1];
+	buyData.buyerAmount = params[1] / 1e18;
 	buyData.buyerTimestamp = params[2];
 
 	const sql = `select * from orders where nftAddress = '${buyData.nftAddress}' and tokenId = '${buyData.tokenId}' && auctionId = '${buyData.auctionId}'`;
-	console.log(sql);
-
 	connection.query(sql, async function(error, data, fields) {
-		console.log(data);
 		if(data.length == 0) return;
 		else await updateBuyDB(buyData);
 	})
@@ -271,28 +285,28 @@ const addDB = async (data) => {
 }
 
 const updateBuyDB = async (data) => {
-	console.log(data);
+	console.log(`<= Buy ${data.auctionId} hash ${data.buyerTransactionHash}`);
 	try {
-		const sql = `update orders set buyerAmoount = ${data.buyerAmount}, buyerAddress = '${data.buyerAddress}', buyerTransactionHash = '${data.buyerTransactionHash}', buyerBlockHash = '${data.buyerBlockHash}', buyerLogIndex = '${data.buyerLogIndex}', buyerLogId = '${data.buyerLogId}', buyerBlockNumber = '${data.buyerBlockNumber}', buyerAction= '${data.buyerAction}', buyerTimestamp = '${data.buyerTimestamp}' where nftAddress = '${data.nftAddress}' and tokenId = '${data.tokenId}' and auctionId = '${data.auctionId}'`;
-		console.log(sql);
-		// const promise = new Promise((resolve, reject) => {
-		// 	connection.query(
-		// 		sql,
-		// 		function (error, data, fields) {
-		// 			if(error) return reject(error);
-		// 			else return resolve(data);
-		// 		}
-		// 	)
-		// })
-		// return promise;
+		const sql = `update orders set buyerAmount = ${data.buyerAmount}, buyerAddress = '${data.buyerAddress}', buyerTransactionHash = '${data.buyerTransactionHash}', buyerBlockHash = '${data.buyerBlockHash}', buyerLogIndex = ${data.buyerLogIndex}, buyerLogId = '${data.buyerLogId}', buyerBlockNumber = ${data.buyerBlockNumber}, buyerAction= ${data.buyerAction}, buyerTimestamp = ${data.buyerTimestamp} where nftAddress = '${data.nftAddress}' and tokenId = '${data.tokenId}' and auctionId = '${data.auctionId}'`;
+		const promise = new Promise((resolve, reject) => {
+			connection.query(
+				sql,
+				function (error, data, fields) {
+					if(error) return reject(error);
+					else return resolve(data);
+				}
+			)
+		})
+		return promise;
 	} catch (error) {
 		console.error(error);
 	}
 }
 
 const buy = (sellData) => {
-	console.log("价格合适，购买...");
+	// console.log("价格合适，购买...");
 
 }
 
-subscription_auction();
+subscription_sell();
+subscription_buy();
