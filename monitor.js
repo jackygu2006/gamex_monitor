@@ -144,6 +144,7 @@ const actions = {
 
 // const web3 = new Web3(new Web3.providers.HttpProvider(rpcUrl));
 const web3 = new Web3(new Web3.providers.WebsocketProvider(wss));
+console.log('Metamon 数据跟踪机器人 By Jacky Gu');
 console.log("Web3 connected...");
 
 const fixedPriceSellContract = new web3.eth.Contract(FixedPriceSellJson.abi, FixedPriceSellJsonAddress);
@@ -235,7 +236,7 @@ const parseSellData = async (d) => {
 	} else {
 		sellData.nftType = 'other';
 	}
-	console.log(`=> Sell ${sellData.nftType} hash ${sellData.transactionHash}`);
+	console.log(`=> Sell ${sellData.nftType} #${sellData.tokenId} @${sellData.startingPrice} RACA hash ${sellData.transactionHash}`);
 	await addDB(sellData);
 }
 
@@ -262,7 +263,7 @@ const parseBuyData = async (d) => {
 	const sql = `select * from orders where nftAddress = '${buyData.nftAddress}' and tokenId = '${buyData.tokenId}' && auctionId = '${buyData.auctionId}'`;
 	connection.query(sql, async function(error, data, fields) {
 		if(data.length == 0) return;
-		else await updateBuyDB(buyData);
+		else await updateBuyDB(buyData, data[0]);
 	})
 }
 
@@ -284,8 +285,8 @@ const addDB = async (data) => {
 	}
 }
 
-const updateBuyDB = async (data) => {
-	console.log(`<= Buy ${data.auctionId} hash ${data.buyerTransactionHash}`);
+const updateBuyDB = async (data, sellData) => {
+	console.log(`<= Buy ${sellData.nftType} #${sellData.tokenId} @${sellData.startingPrice} RACA hash ${data.buyerTransactionHash}`);
 	try {
 		const sql = `update orders set buyerAmount = ${data.buyerAmount}, buyerAddress = '${data.buyerAddress}', buyerTransactionHash = '${data.buyerTransactionHash}', buyerBlockHash = '${data.buyerBlockHash}', buyerLogIndex = ${data.buyerLogIndex}, buyerLogId = '${data.buyerLogId}', buyerBlockNumber = ${data.buyerBlockNumber}, buyerAction= ${data.buyerAction}, buyerTimestamp = ${data.buyerTimestamp} where nftAddress = '${data.nftAddress}' and tokenId = '${data.tokenId}' and auctionId = '${data.auctionId}'`;
 		const promise = new Promise((resolve, reject) => {
