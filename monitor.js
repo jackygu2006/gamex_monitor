@@ -171,7 +171,8 @@ const subscription_sell = () => {
 		await parseSellData(log);
 	})
 	.on("error", function(error) {
-		console.log(error)
+		console.log(error);
+		subscription_sell();
 	})
 }
 
@@ -188,6 +189,7 @@ const subscription_buy = () => {
 	})
 	.on("error", function(error) {
 		console.log(error)
+		subscription_buy();
 	})
 }
 
