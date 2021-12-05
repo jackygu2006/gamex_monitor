@@ -269,6 +269,7 @@ const parseBuyData = async (d) => {
 	})
 }
 
+
 const addDB = async (data) => {
 	try {
 		const sql = `INSERT into orders(contractAddress, sellerAddress, auctionId, nftAddress, blockNumber, transactionHash, blockHash, logIndex, logId, tokenId, count, paymentToken, amount, startingPrice, startDate, endDate, nftType, action, createdAt) values ('` + data.contractAddress + `','` + data.sellerAddress + `', '` + data.auctionId + `', '` + data.nftAddress + `', ` + data.blockNumber + `, '` + data.transactionHash + `', '` + data.blockHash + `', ` + data.logIndex + `, '` + data.logId + `', '` + data.tokenId + `', ` + data.count + `, '` + data.paymentToken + `', ` + data.amount + `, '` + data.startingPrice + `', ` + data.startDate + `, 3000000000, '` + data.nftType + `', ` + data.action + `, unix_timestamp())`;
