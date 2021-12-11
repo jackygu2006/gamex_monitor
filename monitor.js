@@ -253,7 +253,7 @@ const parseSellData = async (d) => {
 	} else {
 		sellData.nftType = 'other';
 	}
-	const dt = date.format(sellData.startDate * 1000, 'YYYY-MM-DD HH:mm:ss');
+	const dt = date.format(new Date(sellData.startDate * 1000), 'YYYY-MM-DD HH:mm:ss');
 	console.log(`=> ${dt} Sell ${sellData.nftType} #${sellData.tokenId} @${sellData.startingPrice} RACA hash ${sellData.transactionHash}`);
 	await addDB(sellData);
 }
@@ -307,7 +307,7 @@ const addDB = async (data) => {
 }
 
 const updateBuyDB = async (data, sellData) => {
-	const dt = date.format(data.buyerTimestamp * 1000, 'YYYY-MM-DD HH:mm:ss');
+	const dt = date.format(new Date(data.buyerTimestamp * 1000), 'YYYY-MM-DD HH:mm:ss');
 	console.log(`<= ${dt} Buy ${sellData.nftType} #${sellData.tokenId} @${sellData.startingPrice} RACA hash ${data.buyerTransactionHash}`);
 	try {
 		const sql = `update orders set buyerAmount = ${data.buyerAmount}, buyerAddress = '${data.buyerAddress}', buyerTransactionHash = '${data.buyerTransactionHash}', buyerBlockHash = '${data.buyerBlockHash}', buyerLogIndex = ${data.buyerLogIndex}, buyerLogId = '${data.buyerLogId}', buyerBlockNumber = ${data.buyerBlockNumber}, buyerAction= ${data.buyerAction}, buyerTimestamp = ${data.buyerTimestamp} where nftAddress = '${data.nftAddress}' and tokenId = '${data.tokenId}' and auctionId = '${data.auctionId}'`;
