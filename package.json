@@ -4,11 +4,13 @@
   "description": "",
   "main": "raca.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node monitor.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "date-and-time": "^2.0.1",
     "dotenv": "^10.0.0",
     "mysql": "^2.18.1",
     "set-interval-async": "^2.0.3",

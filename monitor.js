@@ -1,7 +1,7 @@
 /**
  * JackyGu 2021-12-3
  */
-
+const date = require('date-and-time');
 const Web3 = require('web3');
 const mysql = require('mysql');
 const { setIntervalAsync, clearIntervalAsync } = require('set-interval-async/dynamic')
@@ -253,7 +253,8 @@ const parseSellData = async (d) => {
 	} else {
 		sellData.nftType = 'other';
 	}
-	console.log(`=> Sell ${sellData.nftType} #${sellData.tokenId} @${sellData.startingPrice} RACA hash ${sellData.transactionHash}`);
+	const dt = date.format(sellData.startDate * 1000, 'YYYY-MM-DD HH:mm:ss');
+	console.log(`=> ${dt} Sell ${sellData.nftType} #${sellData.tokenId} @${sellData.startingPrice} RACA hash ${sellData.transactionHash}`);
 	await addDB(sellData);
 }
 
@@ -280,7 +281,9 @@ const parseBuyData = async (d) => {
 	const sql = `select * from orders where nftAddress = '${buyData.nftAddress}' and tokenId = '${buyData.tokenId}' && auctionId = '${buyData.auctionId}'`;
 	connection.query(sql, async function(error, data, fields) {
 		if(data.length == 0) return;
-		else await updateBuyDB(buyData, data[0]);
+		else {
+			await updateBuyDB(buyData, data[0]);
+		}
 	})
 }
 
@@ -304,7 +307,8 @@ const addDB = async (data) => {
 }
 
 const updateBuyDB = async (data, sellData) => {
-	console.log(`<= Buy ${sellData.nftType} #${sellData.tokenId} @${sellData.startingPrice} RACA hash ${data.buyerTransactionHash}`);
+	const dt = date.format(data.buyerTimestamp * 1000, 'YYYY-MM-DD HH:mm:ss');
+	console.log(`<= ${dt} Buy ${sellData.nftType} #${sellData.tokenId} @${sellData.startingPrice} RACA hash ${data.buyerTransactionHash}`);
 	try {
 		const sql = `update orders set buyerAmount = ${data.buyerAmount}, buyerAddress = '${data.buyerAddress}', buyerTransactionHash = '${data.buyerTransactionHash}', buyerBlockHash = '${data.buyerBlockHash}', buyerLogIndex = ${data.buyerLogIndex}, buyerLogId = '${data.buyerLogId}', buyerBlockNumber = ${data.buyerBlockNumber}, buyerAction= ${data.buyerAction}, buyerTimestamp = ${data.buyerTimestamp} where nftAddress = '${data.nftAddress}' and tokenId = '${data.tokenId}' and auctionId = '${data.auctionId}'`;
 		const promise = new Promise((resolve, reject) => {
