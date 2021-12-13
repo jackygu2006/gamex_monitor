@@ -21,6 +21,11 @@ https://www.bscscan.com/tx/0x0b78a78ed81b16152e77e8fd459c92bc411327908277b39c78f
 0000000000000000000000000000000000000000000000000000000000000000 startDate
 0000000000000000000000000000000000000000000000000000000000000000 endDate
 
+cancelAuction
+0x96b5a755
+be7b13a5a98b5b89849f42222b7fc3adb3a261176d05e640e497ddaf9bf9030b
+
+
 对应的Logs
 topic 0x6656db943f28baede9b164738dc5fa235b9da60d5c20a38b0eb0230c 21196254
 000000000000000000000000c6090ee2184e4d0d425987432aaeb17fb39b4192 sellAddress
@@ -66,6 +71,10 @@ topic 0x6656db943f28baede9b164738dc5fa235b9da60d5c20a38b0eb0230c21196254
 0x25d377f7
 5040d0c612d7ccb8c7617508c08f46d3b89230d7491b7b38e79b3baca643510a auctionId
 00000000000000000000000000000000000000000000e185c403ec2b27a00000 amount(RACA)
+
+0x25d377f7
+80a8268dfb1df008c48f8c1f183d6dd3c4944bd75525c788496c5bae780a8745
+0000000000000000000000000000000000000000000002c51176eb309d600000
 
 对应的Log
 0x1e58c00385b2026e41e3dcdd07c0117f1e182f8fd553676950d681ea12185b34 topic
@@ -122,6 +131,7 @@ const yellowDiamondAddress = "0x0000000000000000000000005dc3fed851e07715965e5727
 
 const sellTopics = "0x6656db943f28baede9b164738dc5fa235b9da60d5c20a38b0eb0230c21196254";
 const buyTopics = "0x1e58c00385b2026e41e3dcdd07c0117f1e182f8fd553676950d681ea12185b34";
+const cancelSaleTopics = "0xed99d0d4c88606b9c8fac6251e8a3525854dd4418c15df71565c3908f61ae634";
 
 const BUY = 1;
 const SELL = 2;
@@ -205,6 +215,24 @@ const subscription_buy = () => {
 	.on("error", function(error) {
 		console.log(error)
 		subscription_buy();
+	})
+}
+
+const subscription_cancelSale = () => {
+	web3.eth.subscribe('logs', {
+		topics: [cancelSaleTopics]
+	}, function(error, result) {
+
+	})
+	.on("connected", function(subscriptionId) {
+		console.log('subscription_cancelSale Id:' + subscriptionId);
+	})
+	.on("data", async function(log) {
+		await parseCancelSale(log);
+	})
+	.on("error", function(error) {
+		console.log(error);
+		subscription_cancelSale();
 	})
 }
 
@@ -326,10 +354,32 @@ const updateBuyDB = async (data, sellData) => {
 	}
 }
 
-const buy = (sellData) => {
-	// console.log("价格合适，购买...");
+const parseCancelSale = async (d) => {
+	const topics = d.topics;
+	const account = topics[1];
+	const auctionId = topics[2];
+	const nftAddress = topics[3];
+	console.log(`=> Cancel #${auctionId}`);
+	try {
+		const sql = `update orders set cancelSale = 1 where nftAddress = '${nftAddress}' and auctionId = '${auctionId}'`;
+		return new Promise((resolve, reject) => {
+			connection.query(
+				sql,
+				function(error, data, fields) {
+					if(error) return reject(error);
+					else return resolve(data);
+				}
+			)
+		})
+	} catch(error) {
+		console.error(error);
+	}
+}
 
+const buy = () => {
+	
 }
 
 subscription_sell();
 subscription_buy();
+subscription_cancelSale();
