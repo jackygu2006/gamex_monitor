@@ -21,10 +21,18 @@ https://www.bscscan.com/tx/0x0b78a78ed81b16152e77e8fd459c92bc411327908277b39c78f
 0000000000000000000000000000000000000000000000000000000000000000 startDate
 0000000000000000000000000000000000000000000000000000000000000000 endDate
 
+0x467f963d
+00000000000000000000000051353799f8550c9010a8b0cbfe6c02ca96e026e2
+0000000000000000000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000000000000000043c
+00000000000000000000000012bb890508c125661e03b09ec06e404bc9289040
+00000000000000000000000000000000000000000008f77593d6328ac7000000
+0000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000000000000000000000
+
 cancelAuction
 0x96b5a755
 be7b13a5a98b5b89849f42222b7fc3adb3a261176d05e640e497ddaf9bf9030b
-
 
 对应的Logs
 topic 0x6656db943f28baede9b164738dc5fa235b9da60d5c20a38b0eb0230c 21196254
@@ -71,6 +79,10 @@ topic 0x6656db943f28baede9b164738dc5fa235b9da60d5c20a38b0eb0230c21196254
 0x25d377f7
 5040d0c612d7ccb8c7617508c08f46d3b89230d7491b7b38e79b3baca643510a auctionId
 00000000000000000000000000000000000000000000e185c403ec2b27a00000 amount(RACA)
+
+0x25d377f7
+6e8907be43e18a8fc497c6e6175b0f586708229fcd62b1d6b2981fe14e6a89ec
+000000000000000000000000000000000000000000000a0efaebbe36ceb00000
 
 0x25d377f7
 80a8268dfb1df008c48f8c1f183d6dd3c4944bd75525c788496c5bae780a8745
@@ -318,17 +330,24 @@ const parseBuyData = async (d) => {
 
 const addDB = async (data) => {
 	try {
-		const sql = `INSERT into orders(contractAddress, sellerAddress, auctionId, nftAddress, blockNumber, transactionHash, blockHash, logIndex, logId, tokenId, count, paymentToken, amount, startingPrice, startDate, endDate, nftType, action, createdAt) values ('` + data.contractAddress + `','` + data.sellerAddress + `', '` + data.auctionId + `', '` + data.nftAddress + `', ` + data.blockNumber + `, '` + data.transactionHash + `', '` + data.blockHash + `', ` + data.logIndex + `, '` + data.logId + `', '` + data.tokenId + `', ` + data.count + `, '` + data.paymentToken + `', ` + data.amount + `, '` + data.startingPrice + `', ` + data.startDate + `, 3000000000, '` + data.nftType + `', ` + data.action + `, unix_timestamp())`;
-		const promise = new Promise((resolve, reject) => {
-			connection.query(
-				sql,
-				function (error, data, fields) {
-					if(error) return reject(error);
-					else return resolve(data);
-				}
-			)
+		// Check if duplicated transaction hash
+		const sql1 = `select * from orders where transactionHash = '${data.transactionHash}'`;
+		connection.query(sql1, async function(error, result, fields) {
+			if(result.length > 0) return;
+			else {
+				const sql = `INSERT into orders(contractAddress, sellerAddress, auctionId, nftAddress, blockNumber, transactionHash, blockHash, logIndex, logId, tokenId, count, paymentToken, amount, startingPrice, startDate, endDate, nftType, action, createdAt) values ('` + data.contractAddress + `','` + data.sellerAddress + `', '` + data.auctionId + `', '` + data.nftAddress + `', ` + data.blockNumber + `, '` + data.transactionHash + `', '` + data.blockHash + `', ` + data.logIndex + `, '` + data.logId + `', '` + data.tokenId + `', ` + data.count + `, '` + data.paymentToken + `', ` + data.amount + `, '` + data.startingPrice + `', ` + data.startDate + `, 3000000000, '` + data.nftType + `', ` + data.action + `, unix_timestamp())`;
+				const promise = new Promise((resolve, reject) => {
+					connection.query(
+						sql,
+						function (error, data, fields) {
+							if(error) return reject(error);
+							else return resolve(data);
+						}
+					)
+				})
+				return promise;	
+			}
 		})
-		return promise;
 	} catch (error) {
 		console.error(error);
 	}
