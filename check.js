@@ -53,7 +53,7 @@ const check = async () => {
 	})
 	for(let i = 0; i < sellLogs.length; i++) {
 		let parsedSellData = parseSellData(web3, sellLogs[i]);
-		parsedSellData.nftType = getNftType(parsedSellData.nftAddress);
+		parsedSellData.nftType = getNftType(parsedSellData.nftAddress, parsedSellData.tokenId);
 		await addDB(parsedSellData);
 	}
 

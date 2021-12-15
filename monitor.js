@@ -80,7 +80,7 @@ const subscription_cancelSale = () => {
 
 const _parseSellData = async (d) => {
 	let sellData = parseSellData(web3, d);
-	sellData.nftType = getNftType(sellData.nftAddress);
+	sellData.nftType = getNftType(sellData.nftAddress, sellData.tokenId);
 
 	await addDB(sellData);
 }
