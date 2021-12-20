@@ -22,7 +22,20 @@ const sellTopics = "0x6656db943f28baede9b164738dc5fa235b9da60d5c20a38b0eb0230c21
 const buyTopics = "0x1e58c00385b2026e41e3dcdd07c0117f1e182f8fd553676950d681ea12185b34";
 const cancelSaleTopics = "0xed99d0d4c88606b9c8fac6251e8a3525854dd4418c15df71565c3908f61ae634";
 
-const web3 = new Web3(new Web3.providers.WebsocketProvider(wss));
+const web3 = new Web3(new Web3.providers.WebsocketProvider(wss, {
+	clientConfig: {
+			keepalive: true,
+			keepaliveInterval: 60000	// milliseconds
+	},
+	// Enable auto reconnection
+	reconnect: {
+			auto: true,
+			delay: 5000, // ms
+			maxAttempts: 10,
+			onTimeout: false
+	}
+}));
+
 console.log('Metamon 数据跟踪机器人 By Jacky Gu');
 console.log("Web3 connected...");
 
