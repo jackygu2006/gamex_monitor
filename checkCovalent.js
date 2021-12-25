@@ -38,12 +38,8 @@ const getData = async (web3, gameParams, contractId, fromBlock, toBlock, pageNum
 				let parsedData = [];
 				for(let i = 0; i < data.data.items.length; i++) {
 					const item = data.data.items[i];
-					// console.log(i, data.data.items[i]);
-					// console.log("sell...");
 					const sellData = params.sell.topic !== undefined ? await parseData(web3, item, params.sell, gameParams.chainId, gameParams.gameName) : false;
-					// console.log("buy...");
 					const buyData = params.buy.topic !== undefined ? await parseData(web3, item, params.buy, gameParams.chainId, gameParams.gameName) : false;
-					// console.log("cancel...");
 					const cancelData = params.cancel.topic !== undefined ? await parseData(web3, item, params.cancel, gameParams.chainId, gameParams.gameName) : false;
 					if(sellData) parsedData.push(sellData);
 					if(buyData) parsedData.push(buyData);
