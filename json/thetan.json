@@ -12,7 +12,8 @@
 				"value": 0
 			}, {
 				"key": "tokenId",
-				"value": 1
+				"value": 1,
+				"format": "hexToDec"
 			}],
 			"dataIndex": [{
 				"key": "nftAddress", 
@@ -34,7 +35,8 @@
 				"value": ""
 			}, {
 				"key": "dateTime",
-				"value": ""
+				"format": "dtToTimestampFun",
+				"formatParam": "dtToTimestamp"
 			}, {
 				"key": "count",
 				"value": 1
@@ -48,7 +50,8 @@
 				"value": 0
 			}, {
 				"key": "tokenId",
-				"value": 1
+				"value": 1,
+				"format": "hexToDec"
 			}],
 			"dataIndex": [{
 				"key": "nftAddress", 
@@ -70,7 +73,8 @@
 				"value": ""
 			}, {
 				"key": "dateTime",
-				"value": ""
+				"format": "dtToTimestampFun",
+				"formatParam": "dtToTimestamp"
 			}, {
 				"key": "count",
 				"value": 1

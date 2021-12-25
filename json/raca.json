@@ -90,16 +90,14 @@
 			"topic": "0xed99d0d4c88606b9c8fac6251e8a3525854dd4418c15df71565c3908f61ae634",
 			"topicIndex": [{
 				"key": "topic", 
-				"value": 0,
-				"format": "no"
+				"value": 0
 			}, {
 				"key": "senderAddress", 
 				"value": 1,
 				"format": "shortenAddress"
 			}, {
 				"key": "auctionId", 
-				"value": 2,
-				"format": "no"
+				"value": 2
 			}, {
 				"key": "nftAddress", 
 				"value": 3,
@@ -116,7 +114,8 @@
 				"value": ""
 			}, {
 				"key": "dateTime",
-				"value": ""
+				"format": "dtToTimestampFun",
+				"formatParam": "dtToTimestamp"
 			}],
 			"dataIndex": [{
 				"key": "tokenId", 

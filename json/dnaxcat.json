@@ -39,7 +39,8 @@
 				"value": ""
 			}, {
 				"key": "dateTime",
-				"value": ""
+				"format": "dtToTimestampFun",
+				"formatParam": "dtToTimestamp"
 			}], 
 			"action": "buy"
 		},	
@@ -76,7 +77,8 @@
 				"value": ""
 			}, {
 				"key": "dateTime",
-				"value": ""
+				"format": "dtToTimestampFun",
+				"formatParam": "dtToTimestamp"
 			}],
 			"dataTypes": ["address", "uint256", "uint256", "address", "address", "uint256"],
 			"action": "sell"

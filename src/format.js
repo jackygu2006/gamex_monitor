@@ -1,4 +1,4 @@
-const format = (data, format) => {
+const format = async (data, format, web3 = null) => {
 	// Change the format of data/topics to be same in the database
 	if(format === "shortenAddress") return shortenAddress(data);	
 	else if(format === "toLongAddress") return toLongAddress(data);
@@ -6,6 +6,7 @@ const format = (data, format) => {
 	else if(format === "hexToDec") return hexToDec(data);
 	else if(format === "fromWei") return data / 1e18;
 	else if(format === "toNumber") return  parseInt(data);
+	else if(format === "dtToTimestampFun") return toTimestampCovalent(data);
 	else return data;
 }
 
@@ -31,8 +32,25 @@ const toTimestampStarSharks = (dtString) => {
 	return timestamp / 1000;
 }
 
+const toTimestampCovalent = (dtString) => {
+	// 2021-12-24T01:10:52Z => timestamp
+	const Y = dtString.substr(0, 4);
+	const M = dtString.substr(5, 2);
+	const D = dtString.substr(8, 2);
+	const h = dtString.substr(11, 2);
+	const m = dtString.substr(14, 2);
+	const s = dtString.substr(17, 2);
+	const timestamp = Date.parse(Y + ' ' + M + ' ' + D + ' ' + h + ':' + m + ':' + s);
+	return timestamp / 1000;
+}
+
 const hexToDec = (hex) => {
 	return parseInt(hex.substr(0, 2).toLowerCase() === "0x" ? hex.substr(2, hex.length - 2) : hex, 16);
+}
+
+const heightToTimestampFun = async (height, web3) => {
+	const blockData = await web3.eth.getBlock(height);
+	return blockData.timestamp;
 }
 
 module.exports = {
