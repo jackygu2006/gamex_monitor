@@ -1,0 +1,86 @@
+{
+	"rpcUrl": "https://bsc-dataseed1.binance.org",
+	"chainId": 56,
+	"gameName": "DNAxCat",
+	"contracts": [{
+		"constractAddress": "0xC7F9fD08040F84F4f5f532bad4A9D4399a06A597",
+		"firstBlock": 11391421,
+		"buy": {
+			"topic": "0x9353611011ed50b44698b832c6204b60b5c8d541e53441f87e949156705bf46a",
+			"topicIndex": [{
+				"key": "topic", 
+				"value": 0
+			}],
+			"dataIndex": [{
+				"key": "nftAddress", 
+				"value": 0
+			}, {
+				"key": "tokenId",
+				"value": 1,
+				"format": "toNumber"
+			}, {
+				"key": "count",
+				"value": 2,
+				"format": "toNumber"
+			}, {
+				"key": "senderAddress",
+				"value": 3
+			}, {
+				"key": "paymentToken",
+				"value": 5
+			}, {
+				"key": "amount",
+				"value": 6,
+				"format": "fromWei"
+			}],
+			"dataTypes": ["address", "uint256", "uint256", "address", "address", "address", "uint256"],
+			"constants": [{
+				"key": "auctionId",
+				"value": ""
+			}, {
+				"key": "dateTime",
+				"value": ""
+			}], 
+			"action": "buy"
+		},	
+		"sell": {
+			"topic": "0xfd38d085445697f154b9a983e021f9c40ef6a5e8be9ccc692d5a1e4f086560ff",
+			"topicIndex": [{
+				"key": "topic", 
+				"value": 0
+			}],
+			"dataIndex": [{
+				"key": "nftAddress", 
+				"value": 0
+			}, {
+				"key": "tokenId",
+				"value": 1,
+				"format": "toNumber"
+			}, {
+				"key": "count", 
+				"value": 2,
+				"format": "toNumber"
+			}, {
+				"key": "senderAddress",
+				"value": 3
+			}, {
+				"key": "paymentToken",
+				"value": 4
+			}, {
+				"key": "amount",
+				"value": 5,
+				"format": "fromWei"
+			}],
+			"constants": [{
+				"key": "auctionId",
+				"value": ""
+			}, {
+				"key": "dateTime",
+				"value": ""
+			}],
+			"dataTypes": ["address", "uint256", "uint256", "address", "address", "uint256"],
+			"action": "sell"
+		},
+		"cancel": {}
+	}]
+}

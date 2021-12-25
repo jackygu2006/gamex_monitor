@@ -1,60 +1,88 @@
 {
 	"rpcUrl": "https://bsc-dataseed1.binance.org",
 	"chainId": 56,
-	"constractAddress": "0xD78Be0b93a3c9d1A9323bca03184accf1A57E548",
-	"buy": {
-		"topic": "0x53222eef566b9c31fbbeedd280f499a3b657e89c308f32b17f9bdb966d8b1824",
-		"topicIndex": [{
-			"key": "topic", 
-			"value": 0,
-			"format": "no"
-		}, {
-			"key": "tokenId", 
-			"value": 1,
-			"format": "no"
-		}],
-		"dataIndex": [{
-			"key": "dateTime", 
-			"value": 0,
-			"format": "no"
-		}, {
-			"key": "senderAddress",
-			"value": 2,
-			"format": "no"
-		}, {
-			"key": "amount",
-			"value": 3,
-			"format": "no"
-		}],
-		"dataTypes": ["uint256", "address", "address", "uint256"],
-		"action": "buy"
-	},	
-	"sell": {
-		"topic": "0x53222eef566b9c31fbbeedd280f499a3b657e89c308f32b17f9bdb966d8b1824",
-		"topicIndex": [{
-			"key": "topic", 
-			"value": 0,
-			"format": "no"
-		}, {
-			"key": "tokenId", 
-			"value": 1,
-			"format": "no"
-		}],
-		"dataIndex": [{
-			"key": "dateTime", 
-			"value": 0,
-			"format": "no"
-		}, {
-			"key": "senderAddress",
-			"value": 1,
-			"format": "no"
-		}, {
-			"key": "amount", 
-			"value": 3,
-			"format": "no"
-		}],
-		"dataTypes": ["uint256", "address", "address", "uint256"],
-		"action": "sell"
-	},
-	"cancel": {}	
+	"gameName": "StarSharks",
+	"contracts": [{
+		"constractAddress": "0xD78Be0b93a3c9d1A9323bca03184accf1A57E548",
+		"firstBlock": 13268938,
+		"buy": {
+			"topic": "0x53222eef566b9c31fbbeedd280f499a3b657e89c308f32b17f9bdb966d8b1824",
+			"topicIndex": [{
+				"key": "topic", 
+				"value": 0
+			}, {
+				"key": "tokenId", 
+				"value": 1,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [{
+				"key": "dateTime", 
+				"value": 0,
+				"format": "toTimestampStarSharks"
+			}, {
+				"key": "senderAddress",
+				"value": 2
+			}, {
+				"key": "amount",
+				"value": 3,
+				"format": "fromWei"
+			}],
+			"dataTypes": ["uint256", "address", "address", "uint256"],
+			"constants": [{
+				"key": "nftAddress",
+				"value": "0x416f1d70c1c22608814d9f36c492efb3ba8cad4c"
+			}, {
+				"key": "paymentToken",
+				"value": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c" 
+			}, {
+				"key": "count",
+				"value": 1
+			}, {
+				"key": "auctionId",
+				"value": ""
+			}], 
+			"action": "buy"
+		},	
+		"sell": {
+			"topic": "0x53222eef566b9c31fbbeedd280f499a3b657e89c308f32b17f9bdb966d8b1824",
+			"topicIndex": [{
+				"key": "topic", 
+				"value": 0,
+				"format": "no"
+			}, {
+				"key": "tokenId", 
+				"value": 1,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [{
+				"key": "dateTime", 
+				"value": 0,
+				"format": "toTimestampStarSharks"
+			}, {
+				"key": "senderAddress",
+				"value": 1,
+				"format": "no"
+			}, {
+				"key": "amount", 
+				"value": 3,
+				"format": "fromWei"
+			}],
+			"constants": [{
+				"key": "nftAddress",
+				"value": "0x416f1d70c1c22608814d9f36c492efb3ba8cad4c"
+			}, {
+				"key": "paymentToken",
+				"value": "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c" 
+			}, {
+				"key": "count",
+				"value": 1
+			}, {
+				"key": "auctionId",
+				"value": ""
+			}],
+			"dataTypes": ["uint256", "address", "address", "uint256"],
+			"action": "sell"
+		},
+		"cancel": {}	
+	}]
 }

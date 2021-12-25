@@ -1,3 +1,5 @@
+const {format} = require('./format.js');
+
 const dbFields = [{
 	name: "topic",
 	type: "string",
@@ -25,8 +27,7 @@ const dbFields = [{
 }, {
 	name: "dateTime",
 	type: "date",
-}
-];
+}];
 
 /**
  * 
@@ -38,36 +39,47 @@ const dbFields = [{
  * @param {*} dataTypes : ['uint256', 'uint256', 'address', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256']
  * @returns 
  */
-const parseData = (web3, log, typeParams) => {
-	const {topic, topicIndex, dataIndex, dataTypes, action} = typeParams;
+const parseData = (web3, log, typeParams, chainId, gameName) => {
+	const {topic, topicIndex, dataIndex, dataTypes, constants, action} = typeParams;
 
-	const checked = checkTypes(topicIndex, dataIndex);
+	let checked = checkTypes(topicIndex, dataIndex, constants);
 	if(checked.length > 0) {
 		console.log('以下字段不合法，在数据库中不存在相应字段: ', checked);
 		return false;
 	}
-
-	if(topic !== log.raw_log_topics[0]) {
-		console.log('topic is not matching');
+	checked = checkFieldsDefined(topicIndex, dataIndex, constants);
+	if(checked.length > 0) {
+		console.log('以下字段尚无定义', checked);
 		return false;
 	}
+
+	if(topic !== log.raw_log_topics[0]) return false;
 
 	let data = {};
 	const topics = log.raw_log_topics;
 
+	data.chainId = chainId;
+	data.gameName = gameName;
 	data.contractAddress = log.sender_address;
 	data.blockNumber = log.block_height;
 	data.transactionHash = log.tx_hash;
 	data.action = action;
 	
-	for(let i = 0; i < topicIndex.length; i++) data[topicIndex[i].key] = topics[topicIndex[i].value];
-
+	for(let i = 0; i < topicIndex.length; i++) data[topicIndex[i].key] = topicIndex[i].format !== undefined ? format(topics[topicIndex[i].value], topicIndex[i].format) : topics[topicIndex[i].value];
+	for(let i = 0; i < constants.length; i++) data[constants[i].key] = constants[i].value;
 	const params = web3.eth.abi.decodeParameters(dataTypes, log.raw_log_data);
-	for(let i = 0; i < dataIndex.length; i++) data[dataIndex[i].key] = params[dataIndex[i].value];
+	for(let i = 0; i < dataIndex.length; i++) data[dataIndex[i].key] = dataIndex[i].format !== undefined ? format(params[dataIndex[i].value], dataIndex[i].format) : params[dataIndex[i].value];
 	return data;
 }
 
-const checkTypes = (topicIndex, dataIndex) => {
+/**
+ * Check if the configure key is in the database fields
+ * @param {*} topicIndex 
+ * @param {*} dataIndex 
+ * @param {*} constants 
+ * @returns 
+ */
+const checkTypes = (topicIndex, dataIndex, constants) => {
 	let noType = [];
 	for(let i = 0; i < dataIndex.length; i++) {
 		let has = false;
@@ -77,10 +89,7 @@ const checkTypes = (topicIndex, dataIndex) => {
 				break;
 			}
 		}
-		if(!has) {
-			console.log(i, dataIndex[i])
-			noType.push(dataIndex[i].key);
-		}
+		if(!has) noType.push(dataIndex[i].key);
 	}
 	for(let i = 0; i < topicIndex.length; i++) {
 		let has = false;
@@ -92,13 +101,49 @@ const checkTypes = (topicIndex, dataIndex) => {
 		}
 		if(!has) noType.push(topicIndex[i].key);
 	}
+	for(let i = 0; i < constants.length; i++) {
+		let has = false;
+		for(let j = 0; j < dbFields.length; j++) {
+			if(constants[i].key === dbFields[j].name) {
+				has = true;
+				break;
+			}
+		}
+		if(!has) noType.push(constants[i].key);
+	}
 	return noType;
 }
 
-const format = (value, format) => {
-	// ######
-	// Change the format of data/topics to be same in the database
-
+/**
+ * Check if all database fields are defined
+ * @param {*} value 
+ * @param {*} format 
+ */
+const checkFieldsDefined = (topicIndex, dataIndex, constants) => {
+	let noType = [];
+	for(let i = 0; i < dbFields.length; i++) {
+		let has = false;
+		for(let j = 0; j < topicIndex.length; j++) {
+			if(topicIndex[j].key === dbFields[i].name) {
+				has = true;
+				break;
+			}
+		}
+		for(let j = 0; j < dataIndex.length; j++) {
+			if(dataIndex[j].key === dbFields[i].name) {
+				has = true;
+				break;
+			}
+		}
+		for(let j = 0; j < constants.length; j++) {
+			if(constants[j].key === dbFields[i].name) {
+				has = true;
+				break;
+			}
+		}
+		if(!has) noType.push(dbFields[i].name);
+	}
+	return noType;
 }
 
 module.exports = {

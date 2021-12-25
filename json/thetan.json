@@ -1,0 +1,82 @@
+{
+	"rpcUrl": "https://bsc-dataseed1.binance.org",
+	"chainId": 56,
+	"gameName": "TheTan",
+	"contracts": [{
+		"constractAddress": "0x54ac76f9afe0764e6a8Ed6c4179730E6c768F01C",
+		"firstBlock": 12550339,
+		"buy": {
+			"topic": "0x7ec91832f8e94cceb462065487af39394e7520f22662d527e383864c041380cf",
+			"topicIndex": [{
+				"key": "topic", 
+				"value": 0
+			}, {
+				"key": "tokenId",
+				"value": 1
+			}],
+			"dataIndex": [{
+				"key": "nftAddress", 
+				"value": 0
+			}, {
+				"key": "paymentToken",
+				"value": 2
+			}, {
+				"key": "senderAddress",
+				"value": 4
+			}, {
+				"key": "amount",
+				"value": 1,
+				"format": "fromWei"
+			}],
+			"dataTypes": ["address", "uint256", "address", "address", "address", "uint256"],
+			"constants": [{
+				"key": "auctionId",
+				"value": ""
+			}, {
+				"key": "dateTime",
+				"value": ""
+			}, {
+				"key": "count",
+				"value": 1
+			}], 
+			"action": "buy"
+		},	
+		"sell": {
+			"topic": "0x7ec91832f8e94cceb462065487af39394e7520f22662d527e383864c041380cf",
+			"topicIndex": [{
+				"key": "topic", 
+				"value": 0
+			}, {
+				"key": "tokenId",
+				"value": 1
+			}],
+			"dataIndex": [{
+				"key": "nftAddress", 
+				"value": 0
+			}, {
+				"key": "paymentToken",
+				"value": 2
+			}, {
+				"key": "senderAddress",
+				"value": 3
+			}, {
+				"key": "amount",
+				"value": 1,
+				"format": "fromWei"
+			}],
+			"dataTypes": ["address", "uint256", "address", "address", "address", "uint256"],
+			"constants": [{
+				"key": "auctionId",
+				"value": ""
+			}, {
+				"key": "dateTime",
+				"value": ""
+			}, {
+				"key": "count",
+				"value": 1
+			}], 
+			"action": "sell"
+		},
+		"cancel": {}
+	}]
+}

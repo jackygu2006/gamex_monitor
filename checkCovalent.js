@@ -13,13 +13,18 @@ require('dotenv').config();
 // 	updateBuyDB,
 // 	updateCancelSaleDB, 
 // 	deleteDuplicateRowsByField,
-// } = require('./src/db');
+// } = require('./src/dbForCovalent.js');
 
 const Web3 = require('web3');
 const apiKey = 'ckey_ce266e13a4534c628658d103a92';
 
-const getData = async (web3, gameParams, fromBlock, toBlock, pageNumber = 0, pageSize = 10) => {
-	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${gameParams.constractAddress}/?quote-currency=USD&format=JSON&starting-block=${fromBlock}&ending-block=${toBlock}&page-number=${pageNumber}&page-size=${pageSize}&key=${apiKey}`;
+const getData = async (web3, gameParams, contractId, fromBlock, toBlock, pageNumber = 0, pageSize = 10) => {
+	const params = gameParams.contracts[contractId];
+	if(params === undefined) {
+		console.log("合约配置信息错误，请确认json文件配置是否正确");
+		return;
+	}
+	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.constractAddress}/?quote-currency=USD&format=JSON&starting-block=${fromBlock}&ending-block=${toBlock}&page-number=${pageNumber}&page-size=${pageSize}&key=${apiKey}`;
 	console.log(url)
 	request({
 			url,
@@ -34,9 +39,12 @@ const getData = async (web3, gameParams, fromBlock, toBlock, pageNumber = 0, pag
 				for(let i = 0; i < data.data.items.length; i++) {
 					const item = data.data.items[i];
 					// console.log(i, data.data.items[i]);
-					const sellData = gameParams.sell.topic !== undefined ? parseData(web3, item, gameParams.sell) : false;
-					const buyData = gameParams.buy.topic !== undefined ? parseData(web3, item, gameParams.buy) : false;
-					const cancelData = gameParams.cancel.topic !== undefined ? parseData(web3, item, gameParams.cancel) : false;
+					// console.log("sell...");
+					const sellData = params.sell.topic !== undefined ? parseData(web3, item, params.sell, gameParams.chainId, gameParams.gameName) : false;
+					// console.log("buy...");
+					const buyData = params.buy.topic !== undefined ? parseData(web3, item, params.buy, gameParams.chainId, gameParams.gameName) : false;
+					// console.log("cancel...");
+					const cancelData = params.cancel.topic !== undefined ? parseData(web3, item, params.cancel, gameParams.chainId, gameParams.gameName) : false;
 					if(sellData) parsedData.push(sellData);
 					if(buyData) parsedData.push(buyData);
 					if(cancelData) parsedData.push(cancelData);
@@ -46,7 +54,6 @@ const getData = async (web3, gameParams, fromBlock, toBlock, pageNumber = 0, pag
 		}
 	);
 }
-
 
 /**
  * =================================================================
@@ -58,8 +65,10 @@ program
 	.version('0.1.0')
 	.usage('checkCovalent [options]')
 
-program.option('-j --json <GameName>', 'Fetch data with json configure, don\'t include path and .json extension, just game name of config file')
-	
+program
+	.option('-j --json <GameName>', 'Fetch data with json configure, don\'t include path and .json extension, just game name of config file')
+	.option('-i --contractId <ContractId>', 'contracts index in json file')
+
 if(!process.argv[2]) program.help();
 program.parse(process.argv);
 
@@ -67,15 +76,20 @@ const options = program.opts();
 if (options.json) {
 	let gameParams;
 	try {
-		gameParams = JSON.parse(fs.readFileSync(`./json/${options.json}.json`));		
+		gameParams = JSON.parse(fs.readFileSync(`./json/${options.json}.json`));
+		if(gameParams.rpcUrl === undefined || gameParams.gameName === undefined) {
+			console.log("配置文件错误，请检查" + options.json + ".json");
+			return;
+		}
 	} catch(e) {
-		console.log('configure file not found');
+		console.log(options.json + '.json configure file not found');
 		return;
 	}
 	// console.log(gameParams);
+	const contractId = options.contractId === undefined ? 0 : options.contractId;
 	const web3 = new Web3(new Web3.providers.HttpProvider(gameParams.rpcUrl));
 	// getData(web3, gameParams, 13268838, 13268938);
-	getData(web3, gameParams, 13740858, 13750858)
+	getData(web3, gameParams, contractId, 13740858, 13750858)
 }
 
 
