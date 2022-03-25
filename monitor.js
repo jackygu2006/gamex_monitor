@@ -36,7 +36,7 @@ const web3 = new Web3(new Web3.providers.WebsocketProvider(wss, {
 	}
 }));
 
-console.log('Metamon 数据跟踪机器人 By Jacky Gu');
+console.log('GameX 数据跟踪机器人 By Jacky Gu');
 console.log("Web3 connected...");
 
 const subscription_sell = () => {

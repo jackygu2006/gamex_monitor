@@ -16,7 +16,7 @@ require('dotenv').config();
 // } = require('./src/dbForCovalent.js');
 
 const Web3 = require('web3');
-const apiKey = 'ckey_ce266e13a4534c628658d103a92';
+const apiKey = process.env.COVALENT_API_KEY;
 
 const getData = async (web3, gameParams, contractId, fromBlock, toBlock, pageNumber = 0, pageSize = 10) => {
 	const params = gameParams.contracts[contractId];
@@ -32,18 +32,23 @@ const getData = async (web3, gameParams, contractId, fromBlock, toBlock, pageNum
 		},
 		async function (error, response, body) {
 			if (!error && response.statusCode == 200) {
-				// console.log(body)
+				console.log(body)
 				const data = JSON.parse(body);
-				if(data.error) {console.log(data.error_message, data.error_code); return;}
+				if(data.error) {
+					console.log(data.error_message, data.error_code); 
+					return;
+				}
 				let parsedData = [];
 				for(let i = 0; i < data.data.items.length; i++) {
 					const item = data.data.items[i];
 					const sellData = params.sell.topic !== undefined ? await parseData(web3, item, params.sell, gameParams.chainId, gameParams.gameName) : false;
 					const buyData = params.buy.topic !== undefined ? await parseData(web3, item, params.buy, gameParams.chainId, gameParams.gameName) : false;
 					const cancelData = params.cancel.topic !== undefined ? await parseData(web3, item, params.cancel, gameParams.chainId, gameParams.gameName) : false;
+					const updateData = params.updatePrice.topic !== undefined ? await parseData(web3, item, params.updatePrice, gameParams.chainId, gameParams.gameName) : false;
 					if(sellData) parsedData.push(sellData);
 					if(buyData) parsedData.push(buyData);
 					if(cancelData) parsedData.push(cancelData);
+					if(updateData) parsedData.push(updateData);
 				}
 				console.log(parsedData);
 			}
@@ -64,6 +69,10 @@ program
 program
 	.option('-j --json <GameName>', 'Fetch data with json configure, don\'t include path and .json extension, just game name of config file')
 	.option('-i --contractId <ContractId>', 'contracts index in json file')
+	.option('-f --fromBlock <FromBlock>', 'From block height')
+	.option('-t --toBlock <ToBlock>', 'to block height')
+	.option('-n --pageNumber <PageNumber>', 'Page number to fetch')
+	.option('-s --pageSize <PageSize>', 'Page size')
 
 if(!process.argv[2]) program.help();
 program.parse(process.argv);
@@ -75,17 +84,15 @@ if (options.json) {
 		gameParams = JSON.parse(fs.readFileSync(`./json/${options.json}.json`));
 		if(gameParams.rpcUrl === undefined || gameParams.gameName === undefined) {
 			console.log("配置文件错误，请检查" + options.json + ".json");
-			return;
 		}
 	} catch(e) {
 		console.log(options.json + '.json configure file not found');
-		return;
 	}
 	// console.log(gameParams);
 	const contractId = options.contractId === undefined ? 0 : options.contractId;
 	const web3 = new Web3(new Web3.providers.HttpProvider(gameParams.rpcUrl));
-	// getData(web3, gameParams, 13268838, 13268938);
-	getData(web3, gameParams, contractId, 13740858, 13750858)
+	// 命令：node checkCovalent.js -j chatpuppy_mumbai -i 0 -f 25652793 -t 25659473
+	getData(web3, gameParams, contractId, options.fromBlock, options.toBlock, options.pageNumber, options.pageSize);
 }
 
 

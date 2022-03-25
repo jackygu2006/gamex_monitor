@@ -1,0 +1,167 @@
+{
+	"rpcUrl": "https://matic-mumbai.chainstacklabs.com",
+	"chainId": 80001,
+	"gameName": "ChatPuppy",
+	"contracts": [{
+		"constractAddress": "0x206d806872E78e70Ef6ed7Df24983b6bB378eB87",
+		"firstBlock": 25652793,
+		"buy": {
+			"topic": "0xfc322eb9db8da39761bc016b6496a2966dad147beae75990391c6eae2d3168ef",
+			"topicIndex": [{
+				"key": "topic", 
+				"value": 0
+			}, {
+				"key": "auctionId",
+				"value": 1,
+				"format": "hexToDec"
+			}, {
+				"key": "senderAddress",
+				"value": 3,
+				"format": "shortenAddress"
+			}],
+			"dataIndex": [{
+				"key": "tokenId", 
+				"value": 0,
+				"format": "hexToDec"
+			}, {
+				"key": "paymentToken",
+				"value": 1
+			}, {
+				"key": "amount",
+				"value": 2,
+				"format": "fromWei"
+			}, {
+				"key": "dateTime",
+				"value": 3,
+				"formatParam": "dtToTimestamp"
+			}],
+			"dataTypes": ["uint256", "address", "uint256", "uint256"],
+			"constants": [{
+				"key": "count",
+				"value": 1
+			}, {
+				"key": "nftAddress",
+				"value": "0xC625F93d303A0DEd198601439F993a72D1421704"
+			}], 
+			"action": "buy"
+		},	
+		"sell": {
+			"topic": "0xef7e978230ea86fb65602bfa27f8c39f0c0e4417f9c4a77880e7bc23d44b796c",
+			"topicIndex": [{
+				"key": "topic", 
+				"value": 0
+			}, {
+				"key": "auctionId",
+				"value": 1,
+				"format": "hexToDec"
+			}, {
+				"key": "senderAddress",
+				"value": 2,
+				"format": "shortenAddress"
+			}, {
+				"key": "tokenId",
+				"value": 3,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [{
+				"key": "paymentToken", 
+				"value": 0
+			}, {
+				"key": "amount",
+				"value": 1,
+				"format": "fromWei"
+			}, {
+				"key": "dateTime",
+				"value": 2,
+				"formatParam": "dtToTimestamp"
+			}],
+			"constants": [{
+				"key": "count",
+				"value": 1
+			}, {
+				"key": "nftAddress",
+				"value": "0xC625F93d303A0DEd198601439F993a72D1421704"
+			}],
+			"dataTypes": ["address", "uint256"],
+			"action": "sell"
+		},
+		"cancel": {
+			"topic": "0x61b9399f2f0f32ca39ce8d7be32caed5ec22fe07a6daba3a467ed479ec606582",
+			"topicIndex": [{
+				"key": "topic",
+				"value": 0
+			}, {
+				"key": "auctionId",
+				"value": 1,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [],
+			"constants": [{
+				"key": "count",
+				"value": 1
+			}, {
+				"key": "nftAddress",
+				"value": "0xC625F93d303A0DEd198601439F993a72D1421704"
+			}, {
+				"key": "senderAddress",
+				"value": ""
+			}, {
+				"key": "tokenId",
+				"value": ""
+			}, {
+				"key": "paymentToken",
+				"value": ""
+			}, {
+				"key": "amount",
+				"value": ""
+			}, {
+				"key": "dateTime",
+				"format": "dtToTimestampFun",
+				"formatParam": "dtToTimestamp"
+			}],
+			"dataTypes": [],
+			"action": "cancel"
+		},
+		"updatePrice": {
+			"topic": "0x945c1c4e99aa89f648fbfe3df471b916f719e16d960fcec0737d4d56bd696838",
+			"topicIndex": [{
+				"key": "topic",
+				"value": 0
+			}, {
+				"key": "auctionId",
+				"value": 1,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [{
+				"key": "amount",
+				"value": 0,
+				"format": "fromWei"
+			}],
+			"constants": [{
+				"key": "count",
+				"value": 1
+			}, {
+				"key": "nftAddress",
+				"value": "0xC625F93d303A0DEd198601439F993a72D1421704"
+			}, {
+				"key": "senderAddress",
+				"value": ""
+			}, {
+				"key": "tokenId",
+				"value": ""
+			}, {
+				"key": "paymentToken",
+				"value": ""
+			}, {
+				"key": "amount",
+				"value": ""
+			}, {
+				"key": "dateTime",
+				"format": "dtToTimestampFun",
+				"formatParam": "dtToTimestamp"
+			}],
+			"dataTypes": ["uint256"],
+			"action": "update"
+		}
+	}]
+}
