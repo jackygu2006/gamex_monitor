@@ -17,15 +17,15 @@ const addDB = async (sellData) => {
 			if(result.length > 0) {
 				return false;
 			} else {
-				const sql = `INSERT into orders(contractAddress, sellerAddress, auctionId, nftAddress, blockNumber, transactionHash, blockHash, logIndex, logId, tokenId, count, paymentToken, amount, startingPrice, startDate, endDate, nftType, action, createdAt) values ('` + sellData.contractAddress + `','` + sellData.sellerAddress + `', '` + sellData.auctionId + `', '` + sellData.nftAddress + `', ` + sellData.blockNumber + `, '` + sellData.transactionHash + `', '` + sellData.blockHash + `', ` + sellData.logIndex + `, '` + sellData.logId + `', '` + sellData.tokenId + `', ` + sellData.count + `, '` + sellData.paymentToken + `', ` + sellData.amount + `, '` + sellData.startingPrice + `', ` + sellData.startDate + `, 3000000000, '` + sellData.nftType + `', ` + sellData.action + `, unix_timestamp())`;
+				const sql = `INSERT into orders(contractAddress, sellerAddress, auctionId, nftAddress, blockNumber, transactionHash, tokenId, count, paymentToken, amount, startingPrice, startDate, endDate, nftType, action, createdAt) values ('` + sellData.contractAddress + `','` + sellData.senderAddress + `', '` + sellData.auctionId + `', '` + sellData.nftAddress + `', ` + sellData.blockNumber + `, '` + sellData.transactionHash + `', '` + sellData.tokenId + `', ` + sellData.count + `, '` + sellData.paymentToken + `', ` + sellData.amount + `, '` + sellData.amount + `', ` + sellData.dateTime + `, 3000000000, '` + sellData.nftType + `', '` + sellData.action + `', unix_timestamp())`;
 				const promise = new Promise((resolve, reject) => {
 					connection.query(
 						sql,
 						function (error, data, fields) {
 							if(error) return reject(error);
 							else {
-								const dt = date.format(new Date(sellData.startDate * 1000), 'YYYY-MM-DD HH:mm:ss');
-								console.log(`=> ${dt} Sell ${sellData.nftType} #${sellData.tokenId} @${sellData.startingPrice} RACA hash ${sellData.transactionHash}`);
+								const dt = date.format(new Date(sellData.dateTime * 1000), 'YYYY-MM-DD HH:mm:ss');
+								console.log(`=> ${dt} Sell ${sellData.nftType} #${sellData.tokenId} @${sellData.amount} hash ${sellData.transactionHash}`);
 								return resolve(data);
 							}
 						}
@@ -46,15 +46,15 @@ const updateBuyDB = async (buyData) => {
 			if(data1.length == 0 || data1[0].buyerTimestamp > 0) return false;
 			else {
 				const sellData = data1[0];
-				const sql = `update orders set buyerAmount = ${buyData.buyerAmount}, buyerAddress = '${buyData.buyerAddress}', buyerTransactionHash = '${buyData.buyerTransactionHash}', buyerBlockHash = '${buyData.buyerBlockHash}', buyerLogIndex = ${buyData.buyerLogIndex}, buyerLogId = '${buyData.buyerLogId}', buyerBlockNumber = ${buyData.buyerBlockNumber}, buyerAction= ${buyData.buyerAction}, buyerTimestamp = ${buyData.buyerTimestamp} where nftAddress = '${buyData.nftAddress}' and tokenId = '${buyData.tokenId}' and auctionId = '${buyData.auctionId}'`;
+				const sql = `update orders set buyerAmount = ${buyData.amount}, buyerAddress = '${buyData.senderAddress}', buyerTransactionHash = '${buyData.transactionHash}', buyerBlockNumber = ${buyData.blockNumber}, buyerAction= '${buyData.action}', buyerTimestamp = '${buyData.dateTime}' where nftAddress = '${buyData.nftAddress}' and tokenId = '${buyData.tokenId}' and auctionId = '${buyData.auctionId}'`;
 				const promise = new Promise((resolve, reject) => {
 					connection.query(
 						sql,
 						function (error, data2, fields) {
 							if(error) return reject(error);
 							else {
-								const dt = date.format(new Date(buyData.buyerTimestamp * 1000), 'YYYY-MM-DD HH:mm:ss');
-								console.log(`<= ${dt} Buy ${sellData.nftType} #${sellData.tokenId} @${sellData.startingPrice} RACA hash ${buyData.buyerTransactionHash}`);
+								const dt = date.format(new Date(buyData.dateTime * 1000), 'YYYY-MM-DD HH:mm:ss');
+								console.log(`<= ${dt} Buy ${sellData.nftType} #${sellData.tokenId} @${sellData.amount} hash ${buyData.transactionHash}`);
 								return resolve(data2);
 							}
 						}
@@ -94,6 +94,32 @@ const updateCancelSaleDB = async (cancelData) => {
 	}
 }
 
+const updatePriceSaleDB = async (updateData) => {
+	try {
+		const sql1 = `SELECT * from orders where auctionId = '${updateData.auctionId}'`;
+		return connection.query(sql1, async function(error, data1, fields) {
+			if(data1.length == 0) return false;
+			else {
+				const sql = `update orders set amount = ${updateData.amount}, startingPrice = ${updateData.amount} where nftAddress = '${updateData.nftAddress}' and auctionId = '${updateData.auctionId}'`;
+				return new Promise((resolve, reject) => {
+					connection.query(
+						sql,
+						function(error, data, fields) {
+							if(error) return reject(error);
+							else {
+								console.log(`=> UpdatePrice #${updateData.auctionId} to ${updateData.amount}`);
+								return resolve(data);
+							}
+						}
+					)
+				})						
+			}
+		})
+	} catch(error) {
+		console.error(error);
+	}
+}
+
 /**
  * Cause the database duplicated write, do the following sql and delete the duplicated records
  */
@@ -114,4 +140,5 @@ module.exports = {
 	updateBuyDB,
 	addDB,
 	deleteDuplicateRowsByField,
+	updatePriceSaleDB,
 }

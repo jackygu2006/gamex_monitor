@@ -4,38 +4,57 @@
 const fs = require('fs');
 const { parseData} = require('./src/parseCovalentLogs.js');
 const { program } = require('commander');
-const { setIntervalAsync, clearIntervalAsync } = require('set-interval-async/dynamic');
+const { setIntervalAsync, clearIntervalAsync } = require('set-interval-async/fixed');
 const request = require("request");
+const sleep = require('sleep-promise');
+const redis = require('redis');
+
 require('dotenv').config();
 
-// const {
-// 	addDB,
-// 	updateBuyDB,
-// 	updateCancelSaleDB, 
-// 	deleteDuplicateRowsByField,
-// } = require('./src/dbForCovalent.js');
+const client = redis.createClient();
+client.on('error', (err) => console.log('Redis Client Error', err));
+client.connect();
+
+const {
+	addDB,
+	updateBuyDB,
+	updateCancelSaleDB, 
+	deleteDuplicateRowsByField,
+	updatePriceSaleDB,
+} = require('./src/dbForCovalent.js');
 
 const Web3 = require('web3');
+
+const { exit } = require('process');
 const apiKey = process.env.COVALENT_API_KEY;
 
-const getData = async (web3, gameParams, contractId, fromBlock, toBlock, pageNumber = 0, pageSize = 10) => {
+const getData = async (web3, gameParams, contractId, blockNumber, range) => {
+	// fromBlock, toBlock, pageNumber = 0, pageSize = 10
 	const params = gameParams.contracts[contractId];
 	if(params === undefined) {
 		console.log("合约配置信息错误，请确认json文件配置是否正确");
 		return;
 	}
-	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.constractAddress}/?quote-currency=USD&format=JSON&starting-block=${fromBlock}&ending-block=${toBlock}&page-number=${pageNumber}&page-size=${pageSize}&key=${apiKey}`;
-	console.log(url)
+	const _latestFromBlock = await client.get(`${gameParams.chainId}_height`);
+	if(range.fromBlock === undefined) range.fromBlock = _latestFromBlock;
+	if(range.toBlock === undefined) range.toBlock = blockNumber + 2;
+
+	console.log('Check from height', range.fromBlock, 'to', range.toBlock);
+	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.constractAddress}/?quote-currency=USD&format=JSON&starting-block=${range.fromBlock}&ending-block=${range.toBlock}&page-number=${range.pageNumber}&page-size=${range.pageSize}&key=${apiKey}`;
+	// console.log(url);
 	request({
 			url,
 			method: "GET",
 		},
 		async function (error, response, body) {
 			if (!error && response.statusCode == 200) {
-				console.log(body)
 				const data = JSON.parse(body);
 				if(data.error) {
 					console.log(data.error_message, data.error_code); 
+					return;
+				}
+				if(data.data.items.length === 0) {
+					await client.set(`${gameParams.chainId}_height`, range.toBlock - 2);
 					return;
 				}
 				let parsedData = [];
@@ -44,13 +63,29 @@ const getData = async (web3, gameParams, contractId, fromBlock, toBlock, pageNum
 					const sellData = params.sell.topic !== undefined ? await parseData(web3, item, params.sell, gameParams.chainId, gameParams.gameName) : false;
 					const buyData = params.buy.topic !== undefined ? await parseData(web3, item, params.buy, gameParams.chainId, gameParams.gameName) : false;
 					const cancelData = params.cancel.topic !== undefined ? await parseData(web3, item, params.cancel, gameParams.chainId, gameParams.gameName) : false;
-					const updateData = params.updatePrice.topic !== undefined ? await parseData(web3, item, params.updatePrice, gameParams.chainId, gameParams.gameName) : false;
+					const updatePriceData = params.updatePrice.topic !== undefined ? await parseData(web3, item, params.updatePrice, gameParams.chainId, gameParams.gameName) : false;
 					if(sellData) parsedData.push(sellData);
 					if(buyData) parsedData.push(buyData);
 					if(cancelData) parsedData.push(cancelData);
-					if(updateData) parsedData.push(updateData);
+					if(updatePriceData) parsedData.push(updatePriceData);
 				}
-				console.log(parsedData);
+				// console.log(parsedData);
+				for(let i = 0; i < parsedData.length; i++) {
+					if(parsedData[i].action === 'sell') await addDB(parsedData[i]);
+				}
+				await sleep(500);
+				for(let i = 0; i < parsedData.length; i++) {
+					if(parsedData[i].action === 'buy') await updateBuyDB(parsedData[i]);
+				}
+				await sleep(500);
+				for(let i = 0; i < parsedData.length; i++) {
+					if(parsedData[i].action === 'cancel') await updateCancelSaleDB(parsedData[i]);
+				}
+				await sleep(500);
+				for(let i = 0; i < parsedData.length; i++) {
+					if(parsedData[i].action === 'updatePrice') await updatePriceSaleDB(parsedData[i]);
+				}
+				await client.set(`${gameParams.chainId}_height`, range.toBlock);
 			}
 		}
 	);
@@ -69,8 +104,8 @@ program
 program
 	.option('-j --json <GameName>', 'Fetch data with json configure, don\'t include path and .json extension, just game name of config file')
 	.option('-i --contractId <ContractId>', 'contracts index in json file')
-	.option('-f --fromBlock <FromBlock>', 'From block height')
-	.option('-t --toBlock <ToBlock>', 'to block height')
+	.option('-f --fromBlock <FromBlock>', 'From block height, if no fromBlock and toBlock, will run at intervals')
+	.option('-t --toBlock <ToBlock>', 'to block height, if no toBlock and fromBlock, will run at intervals')
 	.option('-n --pageNumber <PageNumber>', 'Page number to fetch')
 	.option('-s --pageSize <PageSize>', 'Page size')
 
@@ -84,75 +119,45 @@ if (options.json) {
 		gameParams = JSON.parse(fs.readFileSync(`./json/${options.json}.json`));
 		if(gameParams.rpcUrl === undefined || gameParams.gameName === undefined) {
 			console.log("配置文件错误，请检查" + options.json + ".json");
+			exit(0);
 		}
 	} catch(e) {
 		console.log(options.json + '.json configure file not found');
+		exit(0);
 	}
 	// console.log(gameParams);
-	const contractId = options.contractId === undefined ? 0 : options.contractId;
 	const web3 = new Web3(new Web3.providers.HttpProvider(gameParams.rpcUrl));
-	// 命令：node checkCovalent.js -j chatpuppy_mumbai -i 0 -f 25652793 -t 25659473
-	getData(web3, gameParams, contractId, options.fromBlock, options.toBlock, options.pageNumber, options.pageSize);
+	const contractId = options.contractId === undefined ? 0 : options.contractId;
+	console.log("Start...");
+	if(options.fromBlock !== undefined && options.toBlock !== undefined) {
+		getData(
+			web3, 
+			gameParams, 
+			contractId, 
+			null,
+			{
+				fromBlock:options.fromBlock, 
+				toBlock: options.toBlock,
+				pageNumber: options.pageNumber, 
+				pageSize: options.pageSize
+			}
+		);
+	} else {
+		setIntervalAsync(async () => {
+			web3.eth.getBlockNumber().then((blockNumber) => {
+				getData(
+					web3, 
+					gameParams, 
+					contractId, 
+					blockNumber,
+					{
+						fromBlock:options.fromBlock, 
+						toBlock: options.toBlock,
+						pageNumber: options.pageNumber, 
+						pageSize: options.pageSize
+					}
+				);
+			})
+		}, 1000 * 10);
+	}
 }
-
-
-// const timer = setIntervalAsync(
-//   async () => {
-//     console.log('Checking...');
-//     await check()
-//     console.log('Finished...');
-//   },
-//   1000 * 120 // BSC每分钟20个块，2分钟40个块
-// )
-
-// const check = async () => {
-// 	const blockNumber = await web3.eth.getBlockNumber();
-// 	const fromBlock = blockNumber - 50;
-// 	const toBlock = blockNumber;
-
-// 	// Check sell data
-// 	const sellLogs = await web3.eth.getPastLogs({
-//     address: fixedPriceSellContractAddressV2,
-//     topics: [sellTopics],
-// 		fromBlock,
-// 		toBlock,
-// 	})
-// 	for(let i = 0; i < sellLogs.length; i++) {
-// 		let parsedSellData = parseSellData(web3, sellLogs[i]);
-// 		parsedSellData.nftType = getNftType(parsedSellData.nftAddress, parsedSellData.tokenId);
-// 		await addDB(parsedSellData);
-// 	}
-
-// 	// Check buy data
-// 	const buyLogs = await web3.eth.getPastLogs({
-// 		address: fixedPriceSellContractAddressV2,
-// 		topics: [buyTopics],
-// 		fromBlock,
-// 		toBlock,
-// 	})
-// 	for(let i = 0; i < buyLogs.length; i++) {
-// 		const parsedBuyData = parseBuyData(web3, buyLogs[i]);
-// 		await updateBuyDB(parsedBuyData);
-// 	}
-
-// 	// Check cancel sale data
-// 	const cancelLogs = await web3.eth.getPastLogs({
-// 		address: fixedPriceSellContractAddressV2,
-// 		topics: [cancelSaleTopics],
-// 		fromBlock,
-// 		toBlock,
-// 	})
-// 	for(let i = 0; i < cancelLogs.length; i++) {
-// 		const parsedCancelData = parseCancelSaleData(cancelLogs[i]);
-// 		await updateCancelSaleDB(parsedCancelData);
-// 	}
-
-// 	await deleteDuplicateRowsByField('transactionHash');
-// 	await deleteDuplicateRowsByField('buyerTransactionHash');	
-// 	await deleteDuplicateRowsByField('auctionId');
-
-// 	console.log("BlockNumber", blockNumber);
-// 	console.log("Total Logs", sellLogs.length);
-// }
-
-// check();

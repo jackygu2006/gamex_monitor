@@ -27,6 +27,9 @@ const dbFields = [{
 }, {
 	name: "dateTime",
 	type: "date",
+}, {
+	name: "nftType",
+	type: "string"
 }];
 
 /**
@@ -64,12 +67,10 @@ const parseData = async (web3, log, typeParams, chainId, gameName) => {
 	data.blockNumber = log.block_height;
 	data.transactionHash = log.tx_hash;
 	data.action = action;
-	console.log('timestamp', log.block_signed_at);
 	
 	for(let i = 0; i < topicIndex.length; i++) {
 		if(topicIndex[i].format !== undefined) {
-			const formatParam = topics[topicIndex[i].value]; 
-			data[topicIndex[i].key] = await format(formatParam, topicIndex[i].format);
+			data[topicIndex[i].key] = await format(topics[topicIndex[i].value], topicIndex[i].format);
 		} else {
 			data[topicIndex[i].key] = topics[topicIndex[i].value];
 		}
@@ -79,8 +80,7 @@ const parseData = async (web3, log, typeParams, chainId, gameName) => {
 		const params = web3.eth.abi.decodeParameters(dataTypes, log.raw_log_data);
 		for(let i = 0; i < dataIndex.length; i++) {
 			if(dataIndex[i].format !== undefined) {
-				const formatParam = params[dataIndex[i].value];
-				data[dataIndex[i].key] = await format(formatParam, dataIndex[i].format);
+				data[dataIndex[i].key] = await format(params[dataIndex[i].value], dataIndex[i].format);
 			} else {
 				data[dataIndex[i].key] = params[dataIndex[i].value];	
 			}
@@ -90,7 +90,7 @@ const parseData = async (web3, log, typeParams, chainId, gameName) => {
 	for(let i = 0; i < constants.length; i++) {
 		if(constants[i].format !== undefined && constants[i].formatParam !== undefined) {
 			let formatParam = '';
-			if(constants[i].formatParam === "heightToTimestamp") {console.log('heightToTimestamp', log.block_height); formatParam = log.block_height;}
+			if(constants[i].formatParam === "heightToTimestamp") formatParam = log.block_height;
 			else if (constants[i].formatParam === "dtToTimestamp") formatParam = log.block_signed_at;
 			if(formatParam !== '') data[constants[i].key] = await format(formatParam, constants[i].format, web3)
 		} else {

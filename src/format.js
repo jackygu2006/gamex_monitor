@@ -34,7 +34,6 @@ const toTimestampStarSharks = (dtString) => {
 
 const toTimestampCovalent = (dtString) => {
 	// 2021-12-24T01:10:52Z => timestamp
-	console.log(dtString);
 	const Y = dtString.substr(0, 4);
 	const M = dtString.substr(5, 2);
 	const D = dtString.substr(8, 2);

@@ -22,7 +22,7 @@
 			"dataIndex": [{
 				"key": "tokenId", 
 				"value": 0,
-				"format": "hexToDec"
+				"format": "toNumber"
 			}, {
 				"key": "paymentToken",
 				"value": 1
@@ -33,7 +33,7 @@
 			}, {
 				"key": "dateTime",
 				"value": 3,
-				"formatParam": "dtToTimestamp"
+				"format": "toNumber"
 			}],
 			"dataTypes": ["uint256", "address", "uint256", "uint256"],
 			"constants": [{
@@ -42,6 +42,9 @@
 			}, {
 				"key": "nftAddress",
 				"value": "0xC625F93d303A0DEd198601439F993a72D1421704"
+			}, {
+				"key": "nftType",
+				"value": "V1"
 			}], 
 			"action": "buy"
 		},	
@@ -61,7 +64,7 @@
 			}, {
 				"key": "tokenId",
 				"value": 3,
-				"format": "hexToDec"
+				"format": "toNumber"
 			}],
 			"dataIndex": [{
 				"key": "paymentToken", 
@@ -73,7 +76,7 @@
 			}, {
 				"key": "dateTime",
 				"value": 2,
-				"formatParam": "dtToTimestamp"
+				"format": "toNumber"
 			}],
 			"constants": [{
 				"key": "count",
@@ -81,8 +84,11 @@
 			}, {
 				"key": "nftAddress",
 				"value": "0xC625F93d303A0DEd198601439F993a72D1421704"
+			}, {
+				"key": "nftType",
+				"value": "V1"
 			}],
-			"dataTypes": ["address", "uint256"],
+			"dataTypes": ["address", "uint256", "uint256"],
 			"action": "sell"
 		},
 		"cancel": {
@@ -103,11 +109,14 @@
 				"key": "nftAddress",
 				"value": "0xC625F93d303A0DEd198601439F993a72D1421704"
 			}, {
+				"key": "nftType",
+				"value": "V1"
+			},{
 				"key": "senderAddress",
 				"value": ""
 			}, {
 				"key": "tokenId",
-				"value": ""
+				"value": 0
 			}, {
 				"key": "paymentToken",
 				"value": ""
@@ -144,16 +153,16 @@
 				"key": "nftAddress",
 				"value": "0xC625F93d303A0DEd198601439F993a72D1421704"
 			}, {
+				"key": "nftType",
+				"value": "V1"
+			},{
 				"key": "senderAddress",
 				"value": ""
 			}, {
 				"key": "tokenId",
-				"value": ""
+				"value": 0
 			}, {
 				"key": "paymentToken",
-				"value": ""
-			}, {
-				"key": "amount",
 				"value": ""
 			}, {
 				"key": "dateTime",
@@ -161,7 +170,7 @@
 				"formatParam": "dtToTimestamp"
 			}],
 			"dataTypes": ["uint256"],
-			"action": "update"
+			"action": "updatePrice"
 		}
 	}]
 }
