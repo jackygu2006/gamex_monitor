@@ -2,34 +2,42 @@ const {format} = require('./format.js');
 
 const dbFields = [{
 	name: "topic",
-	type: "string",
 }, {
 	name: "senderAddress",
-	type: "string",
 }, {
 	name: "auctionId",
-	type: "string",
 }, {
 	name: "nftAddress",
-	type: "string",
 }, {
 	name: "tokenId",
-	type: "string",
 }, {
 	name: "count",
-	type: "string",
 }, {
 	name: "paymentToken",
-	type: "string",
 }, {
 	name: "amount",
-	type: "string",
 }, {
 	name: "dateTime",
-	type: "date",
 }, {
 	name: "nftType",
-	type: "string"
+}, {
+	name: "transferFrom",
+}, {
+	name: "transferTo",
+}, {
+	name: "uriBytes",
+}, {
+	name: "uriLength",
+}, {
+	name: "line1",
+}, {
+	name: "line2",
+}, {
+	name: "line3",
+}, {
+	name: "dna",
+}, {
+	name: "artifacts",
 }];
 
 /**
@@ -50,11 +58,11 @@ const parseData = async (web3, log, typeParams, chainId, gameName) => {
 		console.log('以下字段不合法，在数据库中不存在相应字段: ', checked);
 		return false;
 	}
-	checked = checkFieldsDefined(topicIndex, dataIndex, constants);
-	if(checked.length > 0) {
-		console.log('以下字段尚无定义', checked);
-		return false;
-	}
+	// checked = checkFieldsDefined(topicIndex, dataIndex, dataTypes, constants);
+	// if(checked.length > 0) {
+	// 	console.log('以下字段尚无定义', checked);
+	// 	return false;
+	// }
 
 	if(topic !== log.raw_log_topics[0]) return false;
 
@@ -148,23 +156,27 @@ const checkTypes = (topicIndex, dataIndex, constants) => {
  * @param {*} value 
  * @param {*} format 
  */
-const checkFieldsDefined = (topicIndex, dataIndex, constants) => {
+const checkFieldsDefined = (topicIndex, dataIndex, dataTypes, constants) => {
 	let noType = [];
+	if(dataIndex.length !== dataTypes.length) return ['dataTypes is error']
 	for(let i = 0; i < dbFields.length; i++) {
 		let has = false;
-		for(let j = 0; j < topicIndex.length; j++) {
+		if(topicIndex.length === 0) has = true;
+		else for(let j = 0; j < topicIndex.length; j++) {
 			if(topicIndex[j].key === dbFields[i].name) {
 				has = true;
 				break;
 			}
 		}
-		for(let j = 0; j < dataIndex.length; j++) {
+		if(dataIndex.length === 0) has = true;
+		else for(let j = 0; j < dataIndex.length; j++) {
 			if(dataIndex[j].key === dbFields[i].name) {
 				has = true;
 				break;
 			}
 		}
-		for(let j = 0; j < constants.length; j++) {
+		if(constants.length === 0) has = true;
+		else for(let j = 0; j < constants.length; j++) {
 			if(constants[j].key === dbFields[i].name) {
 				has = true;
 				break;

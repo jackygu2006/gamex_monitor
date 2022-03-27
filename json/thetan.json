@@ -3,8 +3,7 @@
 	"chainId": 56,
 	"gameName": "TheTan",
 	"contracts": [{
-		"constractAddress": "0x54ac76f9afe0764e6a8Ed6c4179730E6c768F01C",
-		"firstBlock": 12550339,
+		"contractAddress": "0x54ac76f9afe0764e6a8Ed6c4179730E6c768F01C",
 		"buy": {
 			"topic": "0x7ec91832f8e94cceb462065487af39394e7520f22662d527e383864c041380cf",
 			"topicIndex": [{

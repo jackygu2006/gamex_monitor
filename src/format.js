@@ -1,12 +1,16 @@
+const BN = require('bn.js');
+
 const format = async (data, format, web3 = null) => {
 	// Change the format of data/topics to be same in the database
 	if(format === "shortenAddress") return shortenAddress(data);	
 	else if(format === "toLongAddress") return toLongAddress(data);
 	else if(format === "toTimestampStarSharks") return toTimestampStarSharks(data);
 	else if(format === "hexToDec") return hexToDec(data);
+	else if(format === "decToHex") return decToHex(data);
 	else if(format === "fromWei") return data / 1e18;
 	else if(format === "toNumber") return  parseInt(data);
 	else if(format === "dtToTimestampFun") return toTimestampCovalent(data);
+	else if(format === "decToString") return decToString(data);
 	else return data;
 }
 
@@ -48,9 +52,28 @@ const hexToDec = (hex) => {
 	return parseInt(hex.substr(0, 2).toLowerCase() === "0x" ? hex.substr(2, hex.length - 2) : hex, 16);
 }
 
+const decToHex = (dec) => "0x" + (new BN(dec)).toString(16);
+
 const heightToTimestampFun = async (height, web3) => {
 	const blockData = await web3.eth.getBlock(height);
 	return blockData.timestamp;
+}
+
+const decToString = (dec) => {
+	const bn = new BN(dec);
+	const hex = bn.toString(16);
+	const str = hexToAscii(hex);
+	return str;
+}
+
+const hexToAscii = (str1) => {
+	var hex  = str1.toString();
+	var str = '';
+	for (var n = 0; n < hex.length; n += 2) {
+		const char = parseInt(hex.substr(n, 2), 16);
+		if(char !== 0) str += String.fromCharCode(char);
+	}
+	return str;
 }
 
 module.exports = {

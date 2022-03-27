@@ -3,8 +3,7 @@
 	"chainId": 56,
 	"gameName": "DragonCart",
 	"contracts": [{
-		"constractAddress": "0x828A5De80213F7C7ec41422071A7Ac82c8Ac4648",
-		"firstBlock": 13608980,
+		"contractAddress": "0x828A5De80213F7C7ec41422071A7Ac82c8Ac4648",
 		"buy": {
 			"topic": "0xd92904f74973e583bd5940ae2a3a1a28fa8a41e9e9233efe6eb60fc6d0536522",
 			"topicIndex": [{

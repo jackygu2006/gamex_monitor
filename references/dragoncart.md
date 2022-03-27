@@ -1,6 +1,5 @@
 contract: 0x828A5De80213F7C7ec41422071A7Ac82c8Ac4648
 
-firstBlock: 13608980
 ================================================================
 ## buy
 matchOrder(uint256 orderId_, uint256 price_)

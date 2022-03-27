@@ -3,8 +3,7 @@
 	"chainId": 56,
 	"gameName": "StarSharks",
 	"contracts": [{
-		"constractAddress": "0xD78Be0b93a3c9d1A9323bca03184accf1A57E548",
-		"firstBlock": 13268938,
+		"contractAddress": "0xD78Be0b93a3c9d1A9323bca03184accf1A57E548",
 		"buy": {
 			"topic": "0x53222eef566b9c31fbbeedd280f499a3b657e89c308f32b17f9bdb966d8b1824",
 			"topicIndex": [{

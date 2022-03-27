@@ -3,8 +3,7 @@
 	"chainId": 56,
 	"gameName": "Starmon",
 	"contracts": [{
-		"constractAddress": "0xa9ef2d47726c95e82925e8253d1d8487f6db755c",
-		"firstBlock": 12526427,
+		"contractAddress": "0xa9ef2d47726c95e82925e8253d1d8487f6db755c",
 		"buy": {
 			"topic": "0x9353611011ed50b44698b832c6204b60b5c8d541e53441f87e949156705bf46a",
 			"topicIndex": [{

@@ -1,5 +1,4 @@
 contract: 0xC7F9fD08040F84F4f5f532bad4A9D4399a06A597
-firstBlock: 11391421
 
 ## Buy:
 

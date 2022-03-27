@@ -3,8 +3,7 @@
 	"chainId": 56,
 	"gameName": "DNAxCat",
 	"contracts": [{
-		"constractAddress": "0xC7F9fD08040F84F4f5f532bad4A9D4399a06A597",
-		"firstBlock": 11391421,
+		"contractAddress": "0xC7F9fD08040F84F4f5f532bad4A9D4399a06A597",
 		"buy": {
 			"topic": "0x9353611011ed50b44698b832c6204b60b5c8d541e53441f87e949156705bf46a",
 			"topicIndex": [{
