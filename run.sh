@@ -1,0 +1,1 @@
+node checkCovalent.js -j chatpuppy_mumbai -i 1  -n 0 -s 40:
