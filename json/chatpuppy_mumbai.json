@@ -248,8 +248,7 @@
 				"value": 0
 			}, {
 				"key": "artifacts",
-				"value": 1,
-				"format": "decToHex"
+				"value": 1
 			}],
 			"dataTypes": ["bytes32", "uint256"],
 			"constants": [],
