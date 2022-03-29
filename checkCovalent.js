@@ -41,10 +41,10 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 		return;
 	}
 	const _latestFromBlock = await client.get(`${gameParams.chainId}_height`);
-	if(range.fromBlock === undefined) range.fromBlock = _latestFromBlock;
+	if(range.fromBlock === undefined) range.fromBlock = _latestFromBlock - blockInterval;
 	if(range.toBlock === undefined) range.toBlock = blockNumber + blockInterval;
 
-	console.log('Check marketplace from height', range.fromBlock, 'to', range.toBlock);
+	console.log(blockNumber + ': Check marketplace from height', range.fromBlock, 'to', range.toBlock);
 	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.contractAddress}/?quote-currency=USD&format=JSON&starting-block=${range.fromBlock}&ending-block=${range.toBlock}&page-number=${range.pageNumber}&page-size=${range.pageSize}&key=${apiKey}`;
 	// console.log(url);
 	request({
@@ -59,7 +59,7 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 					return;
 				}
 				if(data.data.items.length === 0) {
-					await client.set(`${gameParams.chainId}_height`, range.toBlock - blockInterval);
+					await client.set(`${gameParams.chainId}_height`, blockNumber);
 					return;
 				}
 				let parsedData = [];
@@ -103,9 +103,9 @@ const getNFTData = async (web3, gameParams, contractId, blockNumber, range) => {
 		return;
 	}
 	const _latestFromBlock = await client.get(`${gameParams.chainId}_nft_height`);
-	if(range.fromBlock === undefined) range.fromBlock = _latestFromBlock;
+	if(range.fromBlock === undefined) range.fromBlock = _latestFromBlock - blockInterval;
 	if(range.toBlock === undefined) range.toBlock = blockNumber + blockInterval;
-	console.log('Check nft update from height', range.fromBlock, 'to', range.toBlock);
+	console.log(blockNumber + ': Check nft update from height', range.fromBlock, 'to', range.toBlock);
 	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.contractAddress}/?quote-currency=USD&format=JSON&starting-block=${range.fromBlock}&ending-block=${range.toBlock}&page-number=${range.pageNumber}&page-size=${range.pageSize}&key=${apiKey}`;
 	// console.log(url);
 	request({
@@ -121,7 +121,7 @@ const getNFTData = async (web3, gameParams, contractId, blockNumber, range) => {
 			}
 			if(data.data.items.length === 0) {
 				// console.log("No events...")
-				await client.set(`${gameParams.chainId}_nft_height`, range.toBlock - blockInterval);
+				await client.set(`${gameParams.chainId}_nft_height`, blockNumber);
 				return;
 			}
 			let parsedData = [];
@@ -210,30 +210,32 @@ if (options.json) {
 	console.log("Start...");
 	if(options.fromBlock !== undefined && options.toBlock !== undefined) {
 		// TESTING
-		getNFTData(
-			web3, 
-			gameParams, 
-			1, 
-			null,
-			{
-				fromBlock:options.fromBlock, 
-				toBlock: options.toBlock,
-				pageNumber: options.pageNumber, 
-				pageSize: options.pageSize
-			}
-		);
-		getData(
-			web3, 
-			gameParams, 
-			0, 
-			null,
-			{
-				fromBlock:options.fromBlock, 
-				toBlock: options.toBlock,
-				pageNumber: options.pageNumber, 
-				pageSize: options.pageSize
-			}
-		);
+		web3.eth.getBlockNumber().then((blockNumber) => {
+			getNFTData(
+				web3, 
+				gameParams, 
+				1, 
+				blockNumber,
+				{
+					fromBlock:options.fromBlock, 
+					toBlock: options.toBlock,
+					pageNumber: options.pageNumber, 
+					pageSize: options.pageSize
+				}
+			);
+			getData(
+				web3, 
+				gameParams, 
+				0, 
+				blockNumber,
+				{
+					fromBlock:options.fromBlock, 
+					toBlock: options.toBlock,
+					pageNumber: options.pageNumber, 
+					pageSize: options.pageSize
+				}
+			);
+		});
 	} else {
 		setIntervalAsync(async () => {
 			web3.eth.getBlockNumber().then((blockNumber) => {
