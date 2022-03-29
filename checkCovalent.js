@@ -104,7 +104,7 @@ const getNFTData = async (web3, gameParams, contractId, blockNumber, range) => {
 	}
 	const _latestFromBlock = await client.get(`${gameParams.chainId}_nft_height`);
 	if(range.fromBlock === undefined) range.fromBlock = _latestFromBlock;
-	if(range.toBlock === undefined) range.toBlock = blockNumber + 2;
+	if(range.toBlock === undefined) range.toBlock = blockNumber + blockInterval;
 	console.log('Check nft update from height', range.fromBlock, 'to', range.toBlock);
 	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.contractAddress}/?quote-currency=USD&format=JSON&starting-block=${range.fromBlock}&ending-block=${range.toBlock}&page-number=${range.pageNumber}&page-size=${range.pageSize}&key=${apiKey}`;
 	// console.log(url);
@@ -121,7 +121,7 @@ const getNFTData = async (web3, gameParams, contractId, blockNumber, range) => {
 			}
 			if(data.data.items.length === 0) {
 				// console.log("No events...")
-				await client.set(`${gameParams.chainId}_nft_height`, range.toBlock - 2);
+				await client.set(`${gameParams.chainId}_nft_height`, range.toBlock - blockInterval);
 				return;
 			}
 			let parsedData = [];
