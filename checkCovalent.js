@@ -28,6 +28,7 @@ const {
 } = require('./src/dbForCovalent.js');
 
 const Web3 = require('web3');
+const blockInterval = 5;
 
 const { exit } = require('process');
 const apiKey = process.env.COVALENT_API_KEY;
@@ -41,7 +42,7 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 	}
 	const _latestFromBlock = await client.get(`${gameParams.chainId}_height`);
 	if(range.fromBlock === undefined) range.fromBlock = _latestFromBlock;
-	if(range.toBlock === undefined) range.toBlock = blockNumber + 2;
+	if(range.toBlock === undefined) range.toBlock = blockNumber + blockInterval;
 
 	console.log('Check marketplace from height', range.fromBlock, 'to', range.toBlock);
 	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.contractAddress}/?quote-currency=USD&format=JSON&starting-block=${range.fromBlock}&ending-block=${range.toBlock}&page-number=${range.pageNumber}&page-size=${range.pageSize}&key=${apiKey}`;
@@ -58,7 +59,7 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 					return;
 				}
 				if(data.data.items.length === 0) {
-					await client.set(`${gameParams.chainId}_height`, range.toBlock - 2);
+					await client.set(`${gameParams.chainId}_height`, range.toBlock - blockInterval);
 					return;
 				}
 				let parsedData = [];
