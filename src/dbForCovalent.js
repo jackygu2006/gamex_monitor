@@ -1,5 +1,7 @@
 const date = require('date-and-time');
 const mysql = require('mysql');
+const BN = require('bn.js');
+
 require('dotenv').config();
 
 const connection = mysql.createConnection({
@@ -146,6 +148,16 @@ const updateTokenURINFTDB = async(data) => {
 	}
 }
 
+const parseArtifacts = (artifacts) => {
+	// artifacts is dec
+	const a = new BN(artifacts);
+	let str = a.toString(16);
+	const level = str.substring(str.length - 16, str.length - 12);
+	const exp = str.substring(0, str.length - 16);
+	// console.log(str, level, exp, parseInt(level, 16), parseInt(exp, 16));
+	return {level: parseInt(level, 16), exp: parseInt(exp, 16)}
+}
+
 /**
  * while update NFT metadata
  * @param {*} buyData 
@@ -157,7 +169,8 @@ const updateMetadataNFTDB = async (data) => {
 		return connection.query(sql, async function(error, data1, fields) {
 			if(data1.length == 0) return false;
 			else {
-				const sql = `update nfts set dna = '${data.dna}', artifacts = '${data.artifacts}' where nftAddress = '${data.contractAddress}' and tokenId = ${data.tokenId}`;
+				const d = parseArtifacts(data.artifacts);
+				const sql = `update nfts set dna = '${data.dna}', artifacts = '${data.artifacts}', level = ${d.level}, exp = ${d.exp} where nftAddress = '${data.contractAddress}' and tokenId = ${data.tokenId}`;
 				const promise = new Promise((resolve, reject) => {
 					connection.query(
 						sql,
