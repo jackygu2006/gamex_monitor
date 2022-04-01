@@ -43,10 +43,10 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 	const _latestFromBlock = await client.get(`${gameParams.chainId}_height`);
 	if(range.fromBlock === undefined) range.fromBlock = _latestFromBlock - blockInterval;
 	if(range.toBlock === undefined) range.toBlock = blockNumber + blockInterval;
-
 	console.log(blockNumber + ': Check marketplace from height', range.fromBlock, 'to', range.toBlock);
 	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.contractAddress}/?quote-currency=USD&format=JSON&starting-block=${range.fromBlock}&ending-block=${range.toBlock}&page-number=${range.pageNumber}&page-size=${range.pageSize}&key=${apiKey}`;
 	// console.log(url);
+	// https://api.covalenthq.com/v1/80001/events/address/0x206d806872E78e70Ef6ed7Df24983b6bB378eB87/?quote-currency=USD&format=JSON&starting-block=25727596&ending-block=25735327&page-number=0&page-size=100&key=ckey_ce266e13a4534c628658d103a92
 	request({
 			url,
 			method: "GET",
@@ -69,12 +69,12 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 					const buyData = params.buy.topic !== undefined ? await parseData(web3, item, params.buy, gameParams.chainId, gameParams.gameName) : false;
 					const cancelData = params.cancel.topic !== undefined ? await parseData(web3, item, params.cancel, gameParams.chainId, gameParams.gameName) : false;
 					const updatePriceData = params.updatePrice.topic !== undefined ? await parseData(web3, item, params.updatePrice, gameParams.chainId, gameParams.gameName) : false;
+					
 					if(sellData) parsedData.push(sellData);
 					if(buyData) parsedData.push(buyData);
 					if(cancelData) parsedData.push(cancelData);
 					if(updatePriceData) parsedData.push(updatePriceData);
 				}
-				// console.log(parsedData);
 				for(let i = 0; i < parsedData.length; i++) {
 					if(parsedData[i].action === 'sell') await addDB(parsedData[i]);
 				}

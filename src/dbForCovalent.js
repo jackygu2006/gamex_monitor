@@ -24,7 +24,7 @@ const addDB = async (sellData) => {
 			if(result.length > 0) {
 				return false;
 			} else {
-				const sql = `INSERT into orders(contractAddress, sellerAddress, auctionId, nftAddress, blockNumber, transactionHash, tokenId, count, paymentToken, amount, startingPrice, startDate, endDate, nftType, action, createdAt) values ('` + sellData.contractAddress + `','` + sellData.senderAddress + `', '` + sellData.auctionId + `', '` + sellData.nftAddress + `', ` + sellData.blockNumber + `, '` + sellData.transactionHash + `', '` + sellData.tokenId + `', ` + sellData.count + `, '` + sellData.paymentToken + `', ` + sellData.amount + `, '` + sellData.amount + `', ` + sellData.dateTime + `, 3000000000, '` + sellData.nftType + `', '` + sellData.action + `', unix_timestamp())`;
+				const sql = `INSERT into orders(chainId, gameName, contractAddress, sellerAddress, auctionId, nftAddress, blockNumber, transactionHash, tokenId, count, paymentToken, amount, startingPrice, startDate, endDate, nftType, action, createdAt) values ('${sellData.chainId}', '${sellData.gameName}', '${sellData.contractAddress}','${sellData.senderAddress}', '${sellData.auctionId}', '${sellData.nftAddress}', ${sellData.blockNumber}, '${sellData.transactionHash}', '${sellData.tokenId}', ${sellData.count}, '${sellData.paymentToken}', ${sellData.amount}, '${sellData.amount}', ${sellData.dateTime}, 3000000000, '${sellData.nftType}', '${sellData.action}', unix_timestamp())`;
 				const promise = new Promise((resolve, reject) => {
 					connection.query(
 						sql,
@@ -60,7 +60,7 @@ const addNFTDB = async (mintNftData) => {
 			if(result.length > 0) {
 				return false;
 			} else {
-				const sql = `INSERT into nfts(nftAddress, tokenId, owner) values ('${mintNftData.contractAddress}', '${mintNftData.tokenId}', '${mintNftData.transferTo}')`;
+				const sql = `INSERT into nfts(chainId, gameName, nftAddress, tokenId, owner) values ('${mintNftData.chainId}', '${mintNftData.gameName}', '${mintNftData.contractAddress}', '${mintNftData.tokenId}', '${mintNftData.transferTo}')`;
 				const promise = new Promise((resolve, reject) => {
 					connection.query(
 						sql,
