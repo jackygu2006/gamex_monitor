@@ -36,7 +36,7 @@ const apiKey = process.env.COVALENT_API_KEY;
 const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 	// fromBlock, toBlock, pageNumber = 0, pageSize = 10
 	const params = gameParams.contracts[contractId];
-	if(params === undefined) {
+	if(params === undefined || params.contractAddress === undefined) {
 		console.log("合约配置信息错误，请确认json文件配置是否正确");
 		return;
 	}
@@ -98,7 +98,7 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 
 const getNFTData = async (web3, gameParams, contractId, blockNumber, range) => {
 	const params = gameParams.contracts[contractId];
-	if(params === undefined) {
+	if(params === undefined || params.contractAddress === undefined) {
 		console.log("合约配置信息错误，请确认json文件配置是否正确");
 		return;
 	}
