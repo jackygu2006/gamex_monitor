@@ -1,0 +1,89 @@
+{
+	"rpcUrl": "https://rinkeby.infura.io/v3/0847c4de5d134db1b97838ced14fcd4f",
+	"chainId": 4,
+	"gameName": "ChatPuppy",
+	"contracts": [{
+	}, {
+		"contractAddress": "0x18A1e002958EbAc355102ec84fCbc24C7957B001",
+		"description": "NFT mint, updateURI and updateMetadata logs",
+		"transfer": {
+			"topic": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+			"topicIndex": [{
+				"key": "topic",
+				"value": 0
+			}, {
+				"key": "transferFrom",
+				"value": 1,
+				"format": "shortenAddress"
+			}, {
+				"key": "transferTo",
+				"value": 2,
+				"format": "shortenAddress"
+			}, {
+				"key": "tokenId",
+				"value": 3,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [],
+			"dataTypes": [],
+			"constants": [],
+			"action": "transfer"
+		},
+		"updateTokenURI": {
+			"topic": "0x0418254f69edc41d3d2b429767526234e99f60018e7e21cda80307bf3ef28cc4",
+			"topicIndex": [{
+				"key": "topic",
+				"value": 0
+			}, {
+				"key": "tokenId",
+				"value": 1,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [{
+				"key": "uriBytes",
+				"value": 0,
+				"format": "toNumber"
+			}, {
+				"key": "uriLength",
+				"value": 1,
+				"format": "toNumber"
+			}, {
+        "key": "line1",
+        "value": 2,
+				"format": "decToString"
+      }, {
+        "key": "line2",
+        "value": 3,
+				"format": "decToString"
+      }, {
+        "key": "line3",
+        "value": 4,
+				"format": "decToString"
+			}],
+			"dataTypes": ["uint256", "uint256", "uint256", "uint256", "uint256"],
+			"constants": [],
+			"action": "updateTokenURI"
+		}, 
+		"updateMetadata": {
+			"topic": "0xdf55f6ecff6756468f0431cc67a139ae63c17a01e02ccd27e0c2d09a23dabbeb",
+			"topicIndex": [{
+				"key": "topic",
+				"value": 0
+			}, {
+				"key": "tokenId",
+				"value": 1,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [{
+				"key": "dna",
+				"value": 0
+			}, {
+				"key": "artifacts",
+				"value": 1
+			}],
+			"dataTypes": ["bytes32", "uint256"],
+			"constants": [],
+			"action": "updateMetadata"
+		}
+	}]
+}
