@@ -52,8 +52,12 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 			method: "GET",
 		},
 		async function (error, response, body) {
+			const data = JSON.parse(body);
+			if(!error && response.statusCode == 501) {
+				console.log('Error: ', data.error_message);
+				return;
+			}
 			if (!error && response.statusCode == 200) {
-				const data = JSON.parse(body);
 				if(data.error) {
 					console.log(data.error_message, data.error_code); 
 					return;
@@ -107,14 +111,19 @@ const getNFTData = async (web3, gameParams, contractId, blockNumber, range) => {
 	if(range.toBlock === undefined) range.toBlock = blockNumber + blockInterval;
 	console.log(blockNumber + ': Check nft update from height', range.fromBlock, 'to', range.toBlock);
 	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.contractAddress}/?quote-currency=USD&format=JSON&starting-block=${range.fromBlock}&ending-block=${range.toBlock}&page-number=${range.pageNumber}&page-size=${range.pageSize}&key=${apiKey}`;
-	// console.log(url);
+	console.log(url);
 	request({
 		url,
 		method: "GET",
 	},
 	async function (error, response, body) {
+		const data = JSON.parse(body);
+		if(!error && response.statusCode == 501) {
+			console.log('Error: ', data.error_message);
+			return;
+		}
+
 		if (!error && response.statusCode == 200) {
-			const data = JSON.parse(body);
 			if(data.error) {
 				console.log(data.error_message, data.error_code); 
 				return;
