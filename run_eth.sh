@@ -1,1 +1,1 @@
-node checkCovalent.js -j chatpuppy_rinkeby -i 1  -n 0 -s 40
+node checkCovalent.js -j chatpuppy_eth -i 1  -n 0 -s 40
