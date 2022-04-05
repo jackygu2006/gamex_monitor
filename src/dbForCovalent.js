@@ -58,7 +58,25 @@ const addNFTDB = async (mintNftData, crossFromChainId, crossFromNFTAddress) => {
 		const sql1 = `select * from nfts where chainId = ${mintNftData.chainId} and nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
 		return connection.query(sql1, async function(error, result, fields) {
 			if(result.length > 0) {
-				return false;
+				if(result[0].owner.toLowerCase() !== mintNftData.transferTo.toLowerCase()) {
+					// Update owner
+					const sql = `update nfts set owner = '${mintNftData.transferTo}' where nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
+					const promise = new Promise((resolve, reject) => {
+						connection.query(
+							sql,
+							function (error2, data2, fields) {
+								if(error2) return reject(error2);
+								else {
+									console.log(`=> ${mintNftData.blockNumber} Transfer #${mintNftData.tokenId} to ${mintNftData.transferTo} hash ${mintNftData.transactionHash}`);
+									return resolve(data2);
+								}
+							}
+						)
+					})
+					return promise;
+				} else {
+					return false;
+				}
 			} else {
 				const sql = `INSERT into nfts(chainId, gameName, nftAddress, tokenId, owner) values ('${mintNftData.chainId}', '${mintNftData.gameName}', '${mintNftData.contractAddress}', '${mintNftData.tokenId}', '${mintNftData.transferTo}')`;
 				const promise = new Promise((resolve, reject) => {
@@ -76,7 +94,7 @@ const addNFTDB = async (mintNftData, crossFromChainId, crossFromNFTAddress) => {
 											function(error3, data3, fields4) {
 												if(error3) return reject(error3);
 												else if(data3.length > 0) {
-													const sql4 = `update nfts set nftAddress='${mintNftData.contractAddress}', tokenURI='${data3[0].tokenURI}', dna='${data3[0].dna}', artifacts='${data3[0].artifacts}', level=${data3[0].level}, exp=${data3[0].exp} where chainId=${mintNftData.chainId} and tokenId=${mintNftData.tokenId} and owner='${mintNftData.transferTo}'`;
+													const sql4 = `update nfts set nftAddress='${mintNftData.contractAddress}', tokenURI='${data3[0].tokenURI}', dna='${data3[0].dna}', artifacts='${data3[0].artifacts}', level=${data3[0].level}, exp=${data3[0].exp} where chainId=${mintNftData.chainId} and tokenId=${mintNftData.tokenId}`;
 													new Promise((resolve, reject) => {
 														connection.query(
 															sql4,
@@ -121,25 +139,27 @@ const updateOwnerNFTDB = async (mintNftData) => {
 	// console.log('updateOwnerNFTDB', mintNftData.tokenId);
 	try {
 		const sql = `select * from nfts where chainId = ${mintNftData.chainId} and nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
-		return connection.query(sql, async function(error, data1, fields) {
-			if(data1.length === 0) return false;
-			else {
-				const sql = `update nfts set owner = '${mintNftData.transferTo}' where nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
-				const promise = new Promise((resolve, reject) => {
-					connection.query(
-						sql,
-						function (error, data2, fields) {
-							if(error) return reject(error);
-							else {
-								// const dt = date.format(new Date(mintNftData.dateTime * 1000), 'YYYY-MM-DD HH:mm:ss');
-								console.log(`=> ${mintNftData.blockNumber} Transfer #${mintNftData.tokenId} to ${mintNftData.transferTo} hash ${mintNftData.transactionHash}`);
-								return resolve(data2);
+		return connection.query(
+			sql, 
+			async function(error, data1, fields) {
+				if(data1.length === 0) return false;
+				else {
+					const sql = `update nfts set owner = '${mintNftData.transferTo}' where nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
+					const promise = new Promise((resolve, reject) => {
+						connection.query(
+							sql,
+							function (error, data2, fields) {
+								if(error) return reject(error);
+								else {
+									// const dt = date.format(new Date(mintNftData.dateTime * 1000), 'YYYY-MM-DD HH:mm:ss');
+									console.log(`=> ${mintNftData.blockNumber} Transfer #${mintNftData.tokenId} to ${mintNftData.transferTo} hash ${mintNftData.transactionHash}`);
+									return resolve(data2);
+								}
 							}
-						}
-					)
-				})
-				return promise;
-			}
+						)
+					})
+					return promise;
+				}
 		})
 	} catch (error) {
 		console.error(error);
