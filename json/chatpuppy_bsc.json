@@ -1,0 +1,258 @@
+{
+	"rpcUrl": "https://bsc-dataseed.binance.org/",
+	"chainId": 56,
+	"gameName": "ChatPuppy",
+	"contracts": [{
+		"contractAddress": "0xb7a8eBbB8f57ffCBDC2230F2b1C34CFA4Bf22D45",
+		"description": "marketplace logs",
+		"buy": {
+			"topic": "0xfc322eb9db8da39761bc016b6496a2966dad147beae75990391c6eae2d3168ef",
+			"topicIndex": [{
+				"key": "topic", 
+				"value": 0
+			}, {
+				"key": "auctionId",
+				"value": 1,
+				"format": "hexToDec"
+			}, {
+				"key": "senderAddress",
+				"value": 3,
+				"format": "shortenAddress"
+			}],
+			"dataIndex": [{
+				"key": "tokenId", 
+				"value": 0,
+				"format": "toNumber"
+			}, {
+				"key": "paymentToken",
+				"value": 1
+			}, {
+				"key": "amount",
+				"value": 2,
+				"format": "fromWei"
+			}, {
+				"key": "dateTime",
+				"value": 3,
+				"format": "toNumber"
+			}],
+			"dataTypes": ["uint256", "address", "uint256", "uint256"],
+			"constants": [{
+				"key": "count",
+				"value": 1
+			}, {
+				"key": "nftAddress",
+				"value": "0x4F3402D05822E435C27D1B80aee6edD639E681d7"
+			}, {
+				"key": "nftType",
+				"value": "V1"
+			}], 
+			"action": "buy"
+		},	
+		"sell": {
+			"topic": "0xef7e978230ea86fb65602bfa27f8c39f0c0e4417f9c4a77880e7bc23d44b796c",
+			"topicIndex": [{
+				"key": "topic", 
+				"value": 0
+			}, {
+				"key": "auctionId",
+				"value": 1,
+				"format": "hexToDec"
+			}, {
+				"key": "senderAddress",
+				"value": 2,
+				"format": "shortenAddress"
+			}, {
+				"key": "tokenId",
+				"value": 3,
+				"format": "toNumber"
+			}],
+			"dataIndex": [{
+				"key": "paymentToken", 
+				"value": 0
+			}, {
+				"key": "amount",
+				"value": 1,
+				"format": "fromWei"
+			}, {
+				"key": "dateTime",
+				"value": 2,
+				"format": "toNumber"
+			}],
+			"constants": [{
+				"key": "count",
+				"value": 1
+			}, {
+				"key": "nftAddress",
+				"value": "0x4F3402D05822E435C27D1B80aee6edD639E681d7"
+			}, {
+				"key": "nftType",
+				"value": "V1"
+			}],
+			"dataTypes": ["address", "uint256", "uint256"],
+			"action": "sell"
+		},
+		"cancel": {
+			"topic": "0x61b9399f2f0f32ca39ce8d7be32caed5ec22fe07a6daba3a467ed479ec606582",
+			"topicIndex": [{
+				"key": "topic",
+				"value": 0
+			}, {
+				"key": "auctionId",
+				"value": 1,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [],
+			"constants": [{
+				"key": "count",
+				"value": 1
+			}, {
+				"key": "nftAddress",
+				"value": "0x4F3402D05822E435C27D1B80aee6edD639E681d7"
+			}, {
+				"key": "nftType",
+				"value": "V1"
+			},{
+				"key": "senderAddress",
+				"value": ""
+			}, {
+				"key": "tokenId",
+				"value": 0
+			}, {
+				"key": "paymentToken",
+				"value": ""
+			}, {
+				"key": "amount",
+				"value": ""
+			}, {
+				"key": "dateTime",
+				"format": "dtToTimestampFun",
+				"formatParam": "dtToTimestamp"
+			}],
+			"dataTypes": [],
+			"action": "cancel"
+		},
+		"updatePrice": {
+			"topic": "0x945c1c4e99aa89f648fbfe3df471b916f719e16d960fcec0737d4d56bd696838",
+			"topicIndex": [{
+				"key": "topic",
+				"value": 0
+			}, {
+				"key": "auctionId",
+				"value": 1,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [{
+				"key": "amount",
+				"value": 0,
+				"format": "fromWei"
+			}],
+			"constants": [{
+				"key": "count",
+				"value": 1
+			}, {
+				"key": "nftAddress",
+				"value": "0x4F3402D05822E435C27D1B80aee6edD639E681d7"
+			}, {
+				"key": "nftType",
+				"value": "V1"
+			},{
+				"key": "senderAddress",
+				"value": ""
+			}, {
+				"key": "tokenId",
+				"value": 0
+			}, {
+				"key": "paymentToken",
+				"value": ""
+			}, {
+				"key": "dateTime",
+				"format": "dtToTimestampFun",
+				"formatParam": "dtToTimestamp"
+			}],
+			"dataTypes": ["uint256"],
+			"action": "updatePrice"
+		}
+	}, {
+		"contractAddress": "0x4F3402D05822E435C27D1B80aee6edD639E681d7",
+		"description": "NFT mint, updateURI and updateMetadata logs",
+		"transfer": {
+			"topic": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+			"topicIndex": [{
+				"key": "topic",
+				"value": 0
+			}, {
+				"key": "transferFrom",
+				"value": 1,
+				"format": "shortenAddress"
+			}, {
+				"key": "transferTo",
+				"value": 2,
+				"format": "shortenAddress"
+			}, {
+				"key": "tokenId",
+				"value": 3,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [],
+			"dataTypes": [],
+			"constants": [],
+			"action": "transfer"
+		},
+		"updateTokenURI": {
+			"topic": "0x0418254f69edc41d3d2b429767526234e99f60018e7e21cda80307bf3ef28cc4",
+			"topicIndex": [{
+				"key": "topic",
+				"value": 0
+			}, {
+				"key": "tokenId",
+				"value": 1,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [{
+				"key": "uriBytes",
+				"value": 0,
+				"format": "toNumber"
+			}, {
+				"key": "uriLength",
+				"value": 1,
+				"format": "toNumber"
+			}, {
+        "key": "line1",
+        "value": 2,
+				"format": "decToString"
+      }, {
+        "key": "line2",
+        "value": 3,
+				"format": "decToString"
+      }, {
+        "key": "line3",
+        "value": 4,
+				"format": "decToString"
+			}],
+			"dataTypes": ["uint256", "uint256", "uint256", "uint256", "uint256"],
+			"constants": [],
+			"action": "updateTokenURI"
+		}, 
+		"updateMetadata": {
+			"topic": "0xdf55f6ecff6756468f0431cc67a139ae63c17a01e02ccd27e0c2d09a23dabbeb",
+			"topicIndex": [{
+				"key": "topic",
+				"value": 0
+			}, {
+				"key": "tokenId",
+				"value": 1,
+				"format": "hexToDec"
+			}],
+			"dataIndex": [{
+				"key": "dna",
+				"value": 0
+			}, {
+				"key": "artifacts",
+				"value": 1
+			}],
+			"dataTypes": ["bytes32", "uint256"],
+			"constants": [],
+			"action": "updateMetadata"
+		}
+	}]
+}
