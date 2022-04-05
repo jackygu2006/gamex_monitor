@@ -158,8 +158,11 @@ const getNFTData = async (web3, gameParams, contractId, blockNumber, range) => {
 			// console.log(parsedData);
 			for(let i = 0; i < parsedData.length; i++) {
 				if(parsedData[i].action === "transfer") {
-					if(parsedData[i].transferFrom === '0x0000000000000000000000000000000000000000') await addNFTDB(parsedData[i]);
-					else await updateOwnerNFTDB(parsedData[i]);
+					if(parsedData[i].transferFrom === '0x0000000000000000000000000000000000000000') {
+						await addNFTDB(parsedData[i], params.crossFromChainId, params.crossFromNFTAddress);
+					}
+					else 
+						await updateOwnerNFTDB(parsedData[i]);
 				}
 			}
 			await sleep(500);

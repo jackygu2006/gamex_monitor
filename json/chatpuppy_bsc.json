@@ -175,6 +175,8 @@
 	}, {
 		"contractAddress": "0x4F3402D05822E435C27D1B80aee6edD639E681d7",
 		"description": "NFT mint, updateURI and updateMetadata logs",
+		"crossFromChainId": 1,
+		"crossFromNFTAddress": "0xf81ea6f30c06D3cf037b33334Fe31aDE682E6574",
 		"transfer": {
 			"topic": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
 			"topicIndex": [{

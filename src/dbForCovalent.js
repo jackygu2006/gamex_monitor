@@ -16,10 +16,10 @@ const connection = mysql.createConnection({
  * @param {*} sellData 
  * @returns 
  */
-const addDB = async (sellData) => {
+const addDB = async (sellData) => {	
 	try {
 		// Check if duplicated transaction hash
-		const sql1 = `select * from orders where transactionHash = '${sellData.transactionHash}'`;
+		const sql1 = `select * from orders where chainId = ${sellData.chainId} and transactionHash = '${sellData.transactionHash}'`;
 		return connection.query(sql1, async function(error, result, fields) {
 			if(result.length > 0) {
 				return false;
@@ -51,11 +51,11 @@ const addDB = async (sellData) => {
  * @param {*} mintNftData 
  * @returns 
  */
-const addNFTDB = async (mintNftData) => {
+const addNFTDB = async (mintNftData, crossFromChainId, crossFromNFTAddress) => {
 	try {
 		// Check if duplicated transaction hash
 		// console.log('addNFTDB', mintNftData.tokenId)
-		const sql1 = `select * from nfts where nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
+		const sql1 = `select * from nfts where chainId = ${mintNftData.chainId} and nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
 		return connection.query(sql1, async function(error, result, fields) {
 			if(result.length > 0) {
 				return false;
@@ -67,8 +67,39 @@ const addNFTDB = async (mintNftData) => {
 						function (error, data, fields) {
 							if(error) return reject(error);
 							else {
-								console.log(`=> ${mintNftData.blockNumber} Mint tokenId #${mintNftData.tokenId} hash ${mintNftData.transactionHash}`);
-								return resolve(data);
+								// If crossed from other chain
+								if(crossFromChainId !== undefined && crossFromNFTAddress !== undefined) {
+									const sql3 = `select * from nfts where chainId = ${crossFromChainId} and nftAddress = '${crossFromNFTAddress}' and tokenId = ${mintNftData.tokenId}`;
+									new Promise((resolve, reject) => {
+										connection.query(
+											sql3,
+											function(error3, data3, fields4) {
+												if(error3) return reject(error3);
+												else if(data3.length > 0) {
+													const sql4 = `update nfts set nftAddress='${mintNftData.contractAddress}', tokenURI='${data3[0].tokenURI}', dna='${data3[0].dna}', artifacts='${data3[0].artifacts}', level=${data3[0].level}, exp=${data3[0].exp} where chainId=${mintNftData.chainId} and tokenId=${mintNftData.tokenId} and owner='${mintNftData.transferTo}'`;
+													new Promise((resolve, reject) => {
+														connection.query(
+															sql4,
+															function(error4, data4, fields4) {
+																if(error4) return reject(error4);
+																else {
+																	console.log(`=> ${mintNftData.blockNumber} Mint tokenId #${mintNftData.tokenId} From chainId ${crossFromChainId} hash ${mintNftData.transactionHash}`);
+																	return resolve(data);																										
+																}
+															}
+														)
+													})
+												} else {
+													console.log(`=> ${mintNftData.blockNumber} Mint tokenId #${mintNftData.tokenId} hash ${mintNftData.transactionHash}`);
+													return resolve(data);
+												}
+											}
+										)
+									})
+								} else {
+									console.log(`=> ${mintNftData.blockNumber} Mint tokenId #${mintNftData.tokenId} hash ${mintNftData.transactionHash}`);
+									return resolve(data);	
+								}
 							}
 						}
 					)
@@ -89,7 +120,7 @@ const addNFTDB = async (mintNftData) => {
 const updateOwnerNFTDB = async (mintNftData) => {
 	// console.log('updateOwnerNFTDB', mintNftData.tokenId);
 	try {
-		const sql = `select * from nfts where nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
+		const sql = `select * from nfts where chainId = ${mintNftData.chainId} and nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
 		return connection.query(sql, async function(error, data1, fields) {
 			if(data1.length === 0) return false;
 			else {
@@ -122,7 +153,7 @@ const updateOwnerNFTDB = async (mintNftData) => {
  */
 const updateTokenURINFTDB = async(data) => {
 	try {
-		const sql = `select * from nfts where nftAddress = '${data.contractAddress}' and tokenId = ${data.tokenId}`;
+		const sql = `select * from nfts where chainId = ${data.chainId} and nftAddress = '${data.contractAddress}' and tokenId = ${data.tokenId}`;
 		return connection.query(sql, async function(error, data1, fields) {
 			if(data1.length === 0) return false;
 			else {
@@ -165,7 +196,7 @@ const parseArtifacts = (artifacts) => {
  */
 const updateMetadataNFTDB = async (data) => {
 	try {
-		const sql = `select * from nfts where nftAddress = '${data.contractAddress}' and tokenId = ${data.tokenId}`;
+		const sql = `select * from nfts where chainId = ${data.chainId} and nftAddress = '${data.contractAddress}' and tokenId = ${data.tokenId}`;
 		return connection.query(sql, async function(error, data1, fields) {
 			if(data1.length == 0) return false;
 			else {
@@ -199,7 +230,7 @@ const updateMetadataNFTDB = async (data) => {
  */
 const updateBuyDB = async (buyData) => {
 	try {
-		const sql = `select * from orders where nftAddress = '${buyData.nftAddress}' and tokenId = '${buyData.tokenId}' and auctionId = '${buyData.auctionId}'`;
+		const sql = `select * from orders where chainId = ${buyData.chainId} and nftAddress = '${buyData.nftAddress}' and tokenId = '${buyData.tokenId}' and auctionId = '${buyData.auctionId}'`;
 		return connection.query(sql, async function(error, data1, fields) {
 			if(data1.length == 0 || data1[0].buyerTimestamp > 0) return false;
 			else {
@@ -233,7 +264,7 @@ const updateBuyDB = async (buyData) => {
  */
 const updateCancelSaleDB = async (cancelData) => {
 	try {
-		const sql1 = `SELECT * from orders where auctionId = '${cancelData.auctionId}'`;
+		const sql1 = `SELECT * from orders where chainId = ${cancelData.chainId} and auctionId = '${cancelData.auctionId}'`;
 		return connection.query(sql1, async function(error, data1, fields) {
 			if(data1.length == 0 || data1[0].cancelSale == 1) return false;
 			else {
@@ -264,7 +295,7 @@ const updateCancelSaleDB = async (cancelData) => {
  */
 const updatePriceSaleDB = async (updateData) => {
 	try {
-		const sql1 = `SELECT * from orders where auctionId = '${updateData.auctionId}'`;
+		const sql1 = `SELECT * from orders where chainId = ${updateData.chainId} and auctionId = '${updateData.auctionId}'`;
 		return connection.query(sql1, async function(error, data1, fields) {
 			if(data1.length == 0) return false;
 			else {
