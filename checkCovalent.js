@@ -45,7 +45,7 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 	if(range.toBlock === undefined) range.toBlock = blockNumber + blockInterval;
 	console.log(blockNumber + ': Check marketplace from height', range.fromBlock, 'to', range.toBlock);
 	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.contractAddress}/?quote-currency=USD&format=JSON&starting-block=${range.fromBlock}&ending-block=${range.toBlock}&page-number=${range.pageNumber}&page-size=${range.pageSize}&key=${apiKey}`;
-	// console.log(url);
+	console.log(url);
 	try {
 		request({
 			url,
@@ -79,6 +79,7 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 					if(cancelData) parsedData.push(cancelData);
 					if(updatePriceData) parsedData.push(updatePriceData);
 				}
+				console.log(parsedData);
 				for(let i = 0; i < parsedData.length; i++) {
 					if(parsedData[i].action === 'sell') await addDB(parsedData[i]);
 				}

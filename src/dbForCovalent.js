@@ -315,11 +315,11 @@ const updateCancelSaleDB = async (cancelData) => {
  */
 const updatePriceSaleDB = async (updateData) => {
 	try {
-		const sql1 = `SELECT * from orders where chainId = ${updateData.chainId} and auctionId = '${updateData.auctionId}'`;
+		const sql1 = `SELECT * from orders where chainId = ${updateData.chainId} and auctionId = '${updateData.auctionId}' and cancelSale = 0`;
 		return connection.query(sql1, async function(error, data1, fields) {
 			if(data1.length == 0) return false;
 			else {
-				const sql = `update orders set amount = ${updateData.amount}, startingPrice = ${updateData.amount} where nftAddress = '${updateData.nftAddress}' and auctionId = '${updateData.auctionId}'`;
+				const sql = `update orders set amount = ${updateData.amount}, startingPrice = ${updateData.amount} where nftAddress = '${updateData.nftAddress}' and auctionId = '${updateData.auctionId}' and cancelSale = 0`;
 				return new Promise((resolve, reject) => {
 					connection.query(
 						sql,
