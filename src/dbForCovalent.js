@@ -60,7 +60,7 @@ const addNFTDB = async (mintNftData, crossFromChainId, crossFromNFTAddress) => {
 			if(result.length > 0) {
 				if(result[0].owner.toLowerCase() !== mintNftData.transferTo.toLowerCase()) {
 					// Update owner
-					const sql = `update nfts set owner = '${mintNftData.transferTo}' where nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
+					const sql = `update nfts set owner = '${mintNftData.transferTo}' where chainId = ${mintNftData.chainId} and nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
 					const promise = new Promise((resolve, reject) => {
 						connection.query(
 							sql,
