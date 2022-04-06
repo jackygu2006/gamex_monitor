@@ -144,7 +144,7 @@ const updateOwnerNFTDB = async (mintNftData) => {
 			async function(error, data1, fields) {
 				if(data1.length === 0) return false;
 				else {
-					const sql = `update nfts set owner = '${mintNftData.transferTo}' where nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
+					const sql = `update nfts set owner = '${mintNftData.transferTo}' where chainId = ${mintNftData.chainId} and nftAddress = '${mintNftData.contractAddress}' and tokenId = ${mintNftData.tokenId}`;
 					const promise = new Promise((resolve, reject) => {
 						connection.query(
 							sql,
@@ -177,7 +177,7 @@ const updateTokenURINFTDB = async(data) => {
 		return connection.query(sql, async function(error, data1, fields) {
 			if(data1.length === 0) return false;
 			else {
-				const sql = `update nfts set tokenURI = '${data.tokenURI}' where nftAddress = '${data.contractAddress}' and tokenId = ${data.tokenId}`;
+				const sql = `update nfts set tokenURI = '${data.tokenURI}' where chainId = ${data.chainId} and nftAddress = '${data.contractAddress}' and tokenId = ${data.tokenId}`;
 				const promise = new Promise((resolve, reject) => {
 					connection.query(
 						sql,
@@ -221,7 +221,7 @@ const updateMetadataNFTDB = async (data) => {
 			if(data1.length == 0) return false;
 			else {
 				const d = parseArtifacts(data.artifacts);
-				const sql = `update nfts set dna = '${data.dna}', artifacts = '${data.artifacts}', level = ${d.level}, exp = ${d.exp} where nftAddress = '${data.contractAddress}' and tokenId = ${data.tokenId}`;
+				const sql = `update nfts set dna = '${data.dna}', artifacts = '${data.artifacts}', level = ${d.level}, exp = ${d.exp} where chainId = ${data.chainId} and nftAddress = '${data.contractAddress}' and tokenId = ${data.tokenId}`;
 				const promise = new Promise((resolve, reject) => {
 					connection.query(
 						sql,
@@ -255,7 +255,7 @@ const updateBuyDB = async (buyData) => {
 			if(data1.length == 0 || data1[0].buyerTimestamp > 0) return false;
 			else {
 				const sellData = data1[0];
-				const sql = `update orders set buyerAmount = ${buyData.amount}, buyerAddress = '${buyData.senderAddress}', buyerTransactionHash = '${buyData.transactionHash}', buyerBlockNumber = ${buyData.blockNumber}, buyerAction= '${buyData.action}', buyerTimestamp = '${buyData.dateTime}' where nftAddress = '${buyData.nftAddress}' and tokenId = '${buyData.tokenId}' and auctionId = '${buyData.auctionId}'`;
+				const sql = `update orders set buyerAmount = ${buyData.amount}, buyerAddress = '${buyData.senderAddress}', buyerTransactionHash = '${buyData.transactionHash}', buyerBlockNumber = ${buyData.blockNumber}, buyerAction= '${buyData.action}', buyerTimestamp = '${buyData.dateTime}' where chainId = '${buyData.chainId}' and nftAddress = '${buyData.nftAddress}' and tokenId = '${buyData.tokenId}' and auctionId = '${buyData.auctionId}'`;
 				const promise = new Promise((resolve, reject) => {
 					connection.query(
 						sql,
@@ -284,11 +284,11 @@ const updateBuyDB = async (buyData) => {
  */
 const updateCancelSaleDB = async (cancelData) => {
 	try {
-		const sql1 = `SELECT * from orders where chainId = ${cancelData.chainId} and auctionId = '${cancelData.auctionId}'`;
+		const sql1 = `SELECT * from orders where chainId = ${cancelData.chainId} and nftAddress='${cancelData.nftAddress}' and auctionId = '${cancelData.auctionId}'`;
 		return connection.query(sql1, async function(error, data1, fields) {
 			if(data1.length == 0 || data1[0].cancelSale == 1) return false;
 			else {
-				const sql = `update orders set cancelSale = 1 where nftAddress = '${cancelData.nftAddress}' and auctionId = '${cancelData.auctionId}'`;
+				const sql = `update orders set cancelSale = 1 where chainId=${cancelData.chainId} and nftAddress = '${cancelData.nftAddress}' and auctionId = '${cancelData.auctionId}'`;
 				return new Promise((resolve, reject) => {
 					connection.query(
 						sql,
@@ -315,11 +315,11 @@ const updateCancelSaleDB = async (cancelData) => {
  */
 const updatePriceSaleDB = async (updateData) => {
 	try {
-		const sql1 = `SELECT * from orders where chainId = ${updateData.chainId} and auctionId = '${updateData.auctionId}' and cancelSale = 0`;
+		const sql1 = `SELECT * from orders where chainId = ${updateData.chainId} and nftAddress = '${updateData.nftAddress}' and auctionId = '${updateData.auctionId}' and cancelSale = 0`;
 		return connection.query(sql1, async function(error, data1, fields) {
 			if(data1.length == 0) return false;
 			else {
-				const sql = `update orders set amount = ${updateData.amount}, startingPrice = ${updateData.amount} where nftAddress = '${updateData.nftAddress}' and auctionId = '${updateData.auctionId}' and cancelSale = 0`;
+				const sql = `update orders set amount = ${updateData.amount}, startingPrice = ${updateData.amount} where chainId=${updateData.chainId} and nftAddress = '${updateData.nftAddress}' and auctionId = '${updateData.auctionId}' and cancelSale = 0`;
 				return new Promise((resolve, reject) => {
 					connection.query(
 						sql,
