@@ -45,9 +45,9 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 	if(range.toBlock === undefined) range.toBlock = blockNumber + blockInterval;
 	console.log(blockNumber + ': Check marketplace from height', range.fromBlock, 'to', range.toBlock);
 	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.contractAddress}/?quote-currency=USD&format=JSON&starting-block=${range.fromBlock}&ending-block=${range.toBlock}&page-number=${range.pageNumber}&page-size=${range.pageSize}&key=${apiKey}`;
-	console.log(url);
-	// https://api.covalenthq.com/v1/80001/events/address/0x206d806872E78e70Ef6ed7Df24983b6bB378eB87/?quote-currency=USD&format=JSON&starting-block=25727596&ending-block=25735327&page-number=0&page-size=100&key=ckey_ce266e13a4534c628658d103a92
-	request({
+	// console.log(url);
+	try {
+		request({
 			url,
 			method: "GET",
 		},
@@ -96,8 +96,10 @@ const getData = async (web3, gameParams, contractId, blockNumber, range) => {
 				}
 				await client.set(`${gameParams.chainId}_height`, range.toBlock);
 			}
-		}
-	);
+		});
+	} catch (e) {
+		console.log("Fetch error: " + url);
+	}
 }
 
 const getNFTData = async (web3, gameParams, contractId, blockNumber, range) => {
@@ -111,75 +113,80 @@ const getNFTData = async (web3, gameParams, contractId, blockNumber, range) => {
 	if(range.toBlock === undefined) range.toBlock = blockNumber + blockInterval;
 	console.log(blockNumber + ': Check nft update from height', range.fromBlock, 'to', range.toBlock);
 	const url = `https://api.covalenthq.com/v1/${gameParams.chainId}/events/address/${params.contractAddress}/?quote-currency=USD&format=JSON&starting-block=${range.fromBlock}&ending-block=${range.toBlock}&page-number=${range.pageNumber}&page-size=${range.pageSize}&key=${apiKey}`;
-	console.log(url);
-	request({
-		url,
-		method: "GET",
-	},
-	async function (error, response, body) {
-		const data = JSON.parse(body);
-		if(!error && response.statusCode == 501) {
-			console.log('Error: ', data.error_message);
-			return;
-		}
+	// console.log(url);
 
-		if (!error && response.statusCode == 200) {
-			if(data.error) {
-				console.log(data.error_message, data.error_code); 
+	try {
+		request({
+			url,
+			method: "GET",
+		},
+		async function (error, response, body) {
+			const data = JSON.parse(body);
+			if(!error && response.statusCode == 501) {
+				console.log('Error: ', data.error_message);
 				return;
 			}
-			if(data.data.items.length === 0) {
-				// console.log("No events...")
-				await client.set(`${gameParams.chainId}_nft_height`, blockNumber);
-				return;
-			}
-			let parsedData = [];
-			// console.log(data.data.items);
-			// console.log("total events: ", data.data.items.length);
-			for(let i = 0; i < data.data.items.length; i++) {
-				const item = data.data.items[i];
 
-				// In transferData, if transferFrom is 0x0000000000000000000000000000000000000000, means new NFT was mint
-				// Otherwise, means nft transaction happen.
-				// If transferTo is 0x0000000000000000000000000000000000000000, means NFT was burned.
-				const transferData = params.transfer.topic !== undefined ? await parseData(web3, item, params.transfer, gameParams.chainId, gameParams.gameName) : false;
-				if(transferData) parsedData.push(transferData);
-
-				let updateTokenURIData = params.updateTokenURI.topic !== undefined ? await parseData(web3, item, params.updateTokenURI, gameParams.chainId, gameParams.gameName) : false;
-				if(updateTokenURIData) {
-					// For IPFS uri, it need 3 lines to store. line1 + line2 + line3
-					updateTokenURIData.tokenURI = updateTokenURIData.line1 + updateTokenURIData.line2 + updateTokenURIData.line3;
-					parsedData.push(updateTokenURIData);
+			if (!error && response.statusCode == 200) {
+				if(data.error) {
+					console.log(data.error_message, data.error_code); 
+					return;
 				}
+				if(data.data.items.length === 0) {
+					// console.log("No events...")
+					await client.set(`${gameParams.chainId}_nft_height`, blockNumber);
+					return;
+				}
+				let parsedData = [];
+				// console.log(data.data.items);
+				// console.log("total events: ", data.data.items.length);
+				for(let i = 0; i < data.data.items.length; i++) {
+					const item = data.data.items[i];
 
-				const updateMetadataData = params.updateMetadata.topic !== undefined ? await parseData(web3, item, params.updateMetadata, gameParams.chainId, gameParams.gameName) : false;
-				if(updateMetadataData) parsedData.push(updateMetadataData);
-			}
-			// console.log(parsedData);
-			for(let i = 0; i < parsedData.length; i++) {
-				if(parsedData[i].action === "transfer") {
-					if(parsedData[i].transferFrom === '0x0000000000000000000000000000000000000000') {
-						await addNFTDB(parsedData[i], params.crossFromChainId, params.crossFromNFTAddress);
+					// In transferData, if transferFrom is 0x0000000000000000000000000000000000000000, means new NFT was mint
+					// Otherwise, means nft transaction happen.
+					// If transferTo is 0x0000000000000000000000000000000000000000, means NFT was burned.
+					const transferData = params.transfer.topic !== undefined ? await parseData(web3, item, params.transfer, gameParams.chainId, gameParams.gameName) : false;
+					if(transferData) parsedData.push(transferData);
+
+					let updateTokenURIData = params.updateTokenURI.topic !== undefined ? await parseData(web3, item, params.updateTokenURI, gameParams.chainId, gameParams.gameName) : false;
+					if(updateTokenURIData) {
+						// For IPFS uri, it need 3 lines to store. line1 + line2 + line3
+						updateTokenURIData.tokenURI = updateTokenURIData.line1 + updateTokenURIData.line2 + updateTokenURIData.line3;
+						parsedData.push(updateTokenURIData);
 					}
-					else 
-						await updateOwnerNFTDB(parsedData[i]);
+
+					const updateMetadataData = params.updateMetadata.topic !== undefined ? await parseData(web3, item, params.updateMetadata, gameParams.chainId, gameParams.gameName) : false;
+					if(updateMetadataData) parsedData.push(updateMetadataData);
 				}
-			}
-			await sleep(500);
-			for(let i = 0; i < parsedData.length; i++) {
-				if(parsedData[i].action === "updateMetadata") {
-					await updateMetadataNFTDB(parsedData[i]);
+				// console.log(parsedData);
+				for(let i = 0; i < parsedData.length; i++) {
+					if(parsedData[i].action === "transfer") {
+						if(parsedData[i].transferFrom === '0x0000000000000000000000000000000000000000') {
+							await addNFTDB(parsedData[i], params.crossFromChainId, params.crossFromNFTAddress);
+						}
+						else 
+							await updateOwnerNFTDB(parsedData[i]);
+					}
 				}
-			}
-			await sleep(500);
-			for(let i = 0; i < parsedData.length; i++) {
-				if(parsedData[i].action === "updateTokenURI") {
-					await updateTokenURINFTDB(parsedData[i]);
+				await sleep(500);
+				for(let i = 0; i < parsedData.length; i++) {
+					if(parsedData[i].action === "updateMetadata") {
+						await updateMetadataNFTDB(parsedData[i]);
+					}
 				}
+				await sleep(500);
+				for(let i = 0; i < parsedData.length; i++) {
+					if(parsedData[i].action === "updateTokenURI") {
+						await updateTokenURINFTDB(parsedData[i]);
+					}
+				}
+				await client.set(`${gameParams.chainId}_nft_height`, range.toBlock);
 			}
-			await client.set(`${gameParams.chainId}_nft_height`, range.toBlock);
-		}
-	})
+		})
+	} catch (e) {
+		console.error('Fetch Error: ' + url);
+	}
 }
 
 /**

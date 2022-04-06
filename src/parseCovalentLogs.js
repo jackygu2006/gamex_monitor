@@ -43,7 +43,6 @@ const dbFields = [{
 /**
  * 
  * @param {*} web3 
- * @param {*} log ex. https://api.covalenthq.com/v1/56/events/address/0xe97fdca0a3fc76b3046ae496c1502c9d8dfef6fc/?quote-currency=USD&format=JSON&starting-block=13268938&ending-block=13270000&page-number=0&page-size=10&key=ckey_ce266e13a4534c628658d103a92
  * @param {*} topic 
  * @param {*} topicIndex: [{key: "topic", value: 0}, {key: "sellerAddress", value: 1}, {key: "auctionId", value: 2}, {key: "nftAddress", value: 3}] 
  * @param {*} dataIndex: [{key: "tokenId", value: 0}, {key: "count", value: 1}, {key: "paymentToken", value: 2}, {key: "amount", value: 3}, {key: "startDate", value: 5}, {key: "endDate", value: 6}] 
